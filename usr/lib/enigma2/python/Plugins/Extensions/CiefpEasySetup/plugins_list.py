@@ -59,6 +59,7 @@ PLUGINS_DB = [
     {"phase": 3, "name": "XStreamity", "command": "opkg install enigma2-plugin-extensions-xstreamity", "type": "opkg", "desc": "XStreamity IPTV"},
     {"phase": 3, "name": "YouTube", "command": "opkg install enigma2-plugin-extensions-youtube", "type": "opkg", "desc": "YouTube TV"},
     {"phase": 3, "name": "ytdlpwrapper", "command": "opkg install enigma2-plugin-extensions-ytdlpwrapper", "type": "opkg", "desc": "yt-dlp podrška"},
+    {"phase": 3, "name": "DCWKeyAdd", "command": "opkg install enigma2-plugin-extensions-auto-dcw-key-add", "type": "opkg", "desc": "Auto DCW key add"},
     {"phase": 3, "name": "VuChromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
     {"phase": 3, "name": "WebkitHbbTV", "command": "opkg install enigma2-plugin-extensions-webkithbbtv", "type": "opkg", "desc": "HbbTV podrška"},
 

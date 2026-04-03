@@ -24,6 +24,7 @@ def _(txt):
         "Select Language": {"en": "Select Language", "sr": "Izaberi jezik"},
         "Settings": {"en": "Settings", "sr": "Podešavanja"},
         "Installation in progress...": {"en": "Installation in progress...", "sr": "Instalacija u toku..."},
+        "Time: ": {"en": "Time: ", "sr": "Vreme: "},
         "Exit": {"en": "Exit", "sr": "Izlaz"},
         "Import error!": {"en": "Import error!", "sr": "Import greška!"},
         "Select installation option": {"en": "Select installation option", "sr": "Izaberite opciju instalacije"},
@@ -34,9 +35,18 @@ def _(txt):
         "Phase 1 + Phase 2": {"en": "Phase 1 + Phase 2", "sr": "Faza 1 + Faza 2"},
         "Select manually": {"en": "Select manually", "sr": "Selektuj ručno"},
         "ERROR: File import problem": {"en": "ERROR: File import problem", "sr": "GREŠKA: Problem sa importom fajlova"},
+        "Reboot Box": {"en": "Reboot Box", "sr": "Restartuj risiver"},
+        "Restart Enigma2 (GUI)": {"en": "Restart Enigma2 (GUI)", "sr": "Restartuj Enigma2 (GUI)"},
+        "Cancel": {"en": "Cancel", "sr": "Odustani"},
+        "Select action:": {"en": "Select action:", "sr": "Izaberite akciju:"},
+        "Current Status": {"en": "Current Status", "sr": "Trenutni status"},
+        "DONE": {"en": "DONE", "sr": "ZAVRŠENO"},
+        "Not done": {"en": "Not done", "sr": "Nije završeno"},
         "Phase": {"en": "Phase", "sr": "Faza"},
-        "DONE": {"en": "DONE", "sr": "ZAVRŠENA"},
-        "Not done": {"en": "Not done", "sr": "Nije"},
+        "System is successfully synchronized with the list.": {
+            "en": "System is successfully synchronized with the list.",
+            "sr": "Sistem je uspešno sinhronizovan sa listom."
+        },
         "In progress": {"en": "In progress", "sr": "U toku"},
         "Installation: Phase": {"en": "Installation: Phase", "sr": "Instalacija: Faza"},
         "Installation finished!": {"en": "Installation finished!", "sr": "Instalacija završena!"},
@@ -49,7 +59,6 @@ def _(txt):
                                                 "sr": "Svi plugini su uspešno instalirani!"},
         "Retry logic will be added in the next version.": {"en": "Retry logic will be added in the next version.",
                                                            "sr": "Ponovni pokušaj neuspelih plugina biće dodato u sledećoj verziji."},
-        "Current Status": {"en": "Current Status", "sr": "Trenutno stanje"},
         "Failed plugins count": {"en": "Failed plugins", "sr": "Neuspešnih plugina"},
         "All recorded plugins are installed successfully.": {
             "en": "All recorded plugins are installed successfully.",
@@ -102,16 +111,39 @@ class CiefpInstallProgress(Screen):
         <eLabel position="0,0" size="1200,120" backgroundColor="#1a1a1a" zPosition="-1" />
         <widget name="status" position="20,15" size="1160,40" font="Regular;30" halign="center" valign="center" foregroundColor="#f0ca00" transparent="1" />
         <widget name="detail" position="20,65" size="1160,35" font="Regular;24" halign="center" valign="center" foregroundColor="#ffffff" transparent="1" />
+        <widget name="timer_label" position="950,15" size="230,40" font="Regular;28" halign="right" valign="center" transparent="1" foregroundColor="#ffffff" />
     </screen>"""
 
     def __init__(self, session):
         Screen.__init__(self, session)
+        self["timer_label"] = Label(_("Time: 00:00"))
         self["status"] = Label("Inicijalizacija...")
         self["detail"] = Label("Molimo sačekajte...")
         self["actions"] = ActionMap(["ColorActions", "OkCancelActions"], {
             "red": self.close,
             "cancel": self.close,
         }, -1)
+
+        self.start_time = 0
+        self.elapsed_time = 0
+        self.stopwatch_timer = eTimer()
+        self.stopwatch_timer.callback.append(self.update_stopwatch)
+
+    def update_stopwatch(self):
+        self.elapsed_time += 1
+        minutes = self.elapsed_time // 60
+        seconds = self.elapsed_time % 60
+        # Formatiranje u 00:00 stil
+        time_str = _("Time: ") + "%02d:%02d" % (minutes, seconds)
+        self["timer_label"].setText(time_str)
+
+    def start_timer(self):
+        self.elapsed_time = 0
+        self["timer_label"].setText(_("Time: 00:00"))
+        self.stopwatch_timer.start(1000)  # Pokreće se na svakih 1000ms (1 sekunda)
+
+    def stop_timer(self):
+        self.stopwatch_timer.stop()
 
     def update_info(self, status, detail):
         self["status"].setText(status)
@@ -223,13 +255,13 @@ class CiefpEasySetup(Screen):
 
     def show_about_info(self):
         # Naslov i osnovni info (PY3)
-        about_text = "CiefpEasySetup v1.0\n"
+        about_text = "CiefpEasySetup v1.2\n"
         about_text += "Multi-Image One-Click Installer (PY3)\n\n"
 
         # Sekcija za vreme (Prevedena preko tvoje _(txt) funkcije)
         about_text += "--- " + _("Installation Time Estimates") + " ---\n"
-        about_text += "• OpenATV, Pure2, OpenSPA: image in OMB usb ~35-45 min; image in flash eMMC 10min\n"
-        about_text += "• OpenPLi (Scarthgap):image in OMB usb ~50-60 min; image in flash eMMC 12min\n\n"
+        about_text += "• OpenATV, Pure2, OpenSPA: ~10-15 min eMMC,~35-40 min OMB\n"
+        about_text += "• OpenPLi (Scarthgap): ~10-15 min eMMC,~50-60 min OMB\n\n"
 
         # Napomene
         about_text += _("Note: Speed depends on receiver CPU") + "\n"
@@ -331,6 +363,7 @@ class CiefpEasySetup(Screen):
             if not self.mini_screen:
                 self.hide()
                 self.mini_screen = self.session.open(CiefpInstallProgress)
+                self.mini_screen.start_timer()
 
             self.mini_screen.update_info("Ručna instalacija...", plugin.get("name"))
 
@@ -442,9 +475,16 @@ class CiefpEasySetup(Screen):
         if not self.mini_screen:
             self.mini_screen = self.session.open(CiefpInstallProgress)
 
+        # 🔥 POKRENI ŠTOPERICU PRE NEGO ŠTO POČNE INSTALACIJA
+        self.mini_screen.start_timer()
+
         self.start_actual_installation()
 
     def start_actual_installation(self):
+        # 🔥 POKRENI ŠTOPERICU AKO VEĆ NIJE POKRENUTA
+        if self.mini_screen:
+            self.mini_screen.start_timer()
+
         # Malo zakašnjenje da se UI osveži pre teškog posla
         self.plugin_timer = eTimer()
         self.plugin_timer.callback.append(self.install_next_plugin)
@@ -457,25 +497,29 @@ class CiefpEasySetup(Screen):
         self.update_status_text()
 
     def start_installation_process(self):
+        # 🔥 POKRENI ŠTOPERICU NA MINI SKINU
+        if self.mini_screen:
+            self.mini_screen.start_timer()  # <-- DODAJ OVO
+
         if not self.plugins_to_install:
-            self.show()  # Vrati ekran ako nema šta da se instalira
+            self.show()
             return
 
-        # Otvaramo progres bar ako već nije otvoren
         if not self.mini_screen:
             self.mini_screen = self.session.open(CiefpInstallProgress)
+            self.mini_screen.start_timer()  # <-- I OVDE DODAJ
 
         self.mini_screen.update_info(_("Installation in progress..."), _("Preparing..."))
 
-        # Pokrećemo tajmer koji okida instalaciju prvog plugina
         self.plugin_timer = eTimer()
         self.plugin_timer.callback.append(self.install_next_plugin)
-        self.plugin_timer.start(500, True)  # Smanjeno na 500ms za brži start
+        self.plugin_timer.start(500, True)
 
     def install_next_plugin(self):
         # Da li smo završili listu?
         if self.current_plugin_index >= len(self.plugins_to_install):
             if self.mini_screen:
+                self.mini_screen.stop_timer()
                 self.mini_screen.close()
                 self.mini_screen = None
             self.show()
@@ -611,17 +655,18 @@ class CiefpEasySetup(Screen):
         msg += f"{_('Phase')} 2: {get_done_text(self.status_data.get('phase2_done'))}\n"
         msg += f"{_('Phase')} 3: {get_done_text(self.status_data.get('phase3_done'))}\n\n"
         
-        msg += "Sistem je uspešno sinhronizovan sa listom."
+        msg += _("System is successfully synchronized with the list.")
         self.session.open(MessageBox, msg, MessageBox.TYPE_INFO)
     # ====================== PLAVA - REBOOT ======================
     def show_reboot_menu(self):
         from Screens.ChoiceBox import ChoiceBox
+        # Koristimo _() za svaku opciju i naslov
         options = [
-            ("Reboot Box", "reboot"), 
-            ("Restart Enigma2 (GUI)", "restart"),
-            ("Odustani", "cancel")
+            (_("Reboot Box"), "reboot"),
+            (_("Restart Enigma2 (GUI)"), "restart"),
+            (_("Cancel"), "cancel")
         ]
-        self.session.openWithCallback(self.do_reboot, ChoiceBox, title="Izaberite akciju:", list=options)
+        self.session.openWithCallback(self.do_reboot, ChoiceBox, title=_("Select action:"), list=options)
 
     def do_reboot(self, choice):
         if choice:
@@ -678,7 +723,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.1",
+            name="CiefpEasySetup v1.2",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
