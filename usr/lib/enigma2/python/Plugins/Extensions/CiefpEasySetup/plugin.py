@@ -228,8 +228,8 @@ class CiefpEasySetup(Screen):
 
         # Sekcija za vreme (Prevedena preko tvoje _(txt) funkcije)
         about_text += "--- " + _("Installation Time Estimates") + " ---\n"
-        about_text += "• OpenATV, Pure2, OpenSPA: ~35-45 min\n"
-        about_text += "• OpenPLi (Scarthgap): ~80-90 min\n\n"
+        about_text += "• OpenATV, Pure2, OpenSPA: image in OMB usb ~35-45 min; image in flash eMMC 10min\n"
+        about_text += "• OpenPLi (Scarthgap):image in OMB usb ~50-60 min; image in flash eMMC 12min\n\n"
 
         # Napomene
         about_text += _("Note: Speed depends on receiver CPU") + "\n"
@@ -678,7 +678,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.0",
+            name="CiefpEasySetup v1.1",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",

@@ -11,7 +11,8 @@ PLUGINS_DB = [
     {"phase": 1, "name": "streamlinksrv", "command": "opkg install streamlinksrv", "type": "opkg", "desc": "Streamlink srv"},
     {"phase": 1, "name": "python3-requests", "command": "opkg install python3-requests", "type": "opkg", "desc": "python3-requests"},
     {"phase": 1, "name": "python3-beautifulsoup4", "command": "opkg install python3-beautifulsoup4", "type": "opkg", "desc": "python3-beautifulsoup4"},
-
+    {"phase": 1, "name": "oscam-emu", "command": "opkg install enigma2-plugin-softcams-oscam-emu", "type": "opkg", "desc": "OSCam EMU Softcam"},
+    
     # ==================== FAZA 2 - CiefpSettings ====================
     {"phase": 2, "name": "CiefpPlugins", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPlugins/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp glavni plugin"},
     {"phase": 2, "name": "CiefpsettingsPanel", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpsettingsPanel/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp Settings Panel"},
@@ -58,19 +59,19 @@ PLUGINS_DB = [
     {"phase": 3, "name": "XStreamity", "command": "opkg install enigma2-plugin-extensions-xstreamity", "type": "opkg", "desc": "XStreamity IPTV"},
     {"phase": 3, "name": "YouTube", "command": "opkg install enigma2-plugin-extensions-youtube", "type": "opkg", "desc": "YouTube TV"},
     {"phase": 3, "name": "ytdlpwrapper", "command": "opkg install enigma2-plugin-extensions-ytdlpwrapper", "type": "opkg", "desc": "yt-dlp podrška"},
-    {"phase": 3, "name": "Chromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
+    {"phase": 3, "name": "VuChromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
     {"phase": 3, "name": "WebkitHbbTV", "command": "opkg install enigma2-plugin-extensions-webkithbbtv", "type": "opkg", "desc": "HbbTV podrška"},
 
     # ==================== RUČNA INSTALACIJA (Third Party Scripts) ====================
-    {"phase": 99, "name": "RaedQuickSignal", "command": "wget https://raw.githubusercontent.com/fairbird/RaedQuickSignal/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Raed Quick Signal"},
-    {"phase": 99, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "thirdparty", "desc": "Key Adder"},
-    {"phase": 99, "name": "Auto DCW key add", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Auto DCW key add"},
-    {"phase": 99, "name": "AjPanel", "command": "wget https://raw.githubusercontent.com/biko-73/AjPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "AjPanel"},
-    {"phase": 99, "name": "Linuxsat Panel", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/Belfagor2005/LinuxsatPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Linuxsat Panel"},
-    {"phase": 99, "name": "SubsSupport 1.8.0 Mnasr", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "thirdparty", "desc": "SubsSupport"},
-    {"phase": 99, "name": "Estalker", "command": "wget https://github.com/emilnabil/download-plugins/raw/refs/heads/main/EStalker/EStalker.sh -O - | /bin/sh", "type": "thirdparty", "desc": "EStalker"},
-    {"phase": 99, "name": "X-Streamity", "command": "wget https://raw.githubusercontent.com/biko-73/xstreamity/main/installer.sh -qO - | /bin/sh", "type": "thirdparty", "desc": "X-Streamity"},
-    {"phase": 99, "name": "XKlass", "command": "wget https://dreambox4u.com/emilnabil237/plugins/xklass/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "XKlass"},
-    {"phase": 99, "name": "NewVirtualKeyBoard", "command": "wget https://raw.githubusercontent.com/fairbird/NewVirtualKeyBoard/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "New Virtual KeyBoard"},
     {"phase": 99, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Astronomy"},
+    {"phase": 99, "name": "Estalker", "command": "wget https://github.com/emilnabil/download-plugins/raw/refs/heads/main/EStalker/EStalker.sh -O - | /bin/sh", "type": "thirdparty", "desc": "EStalker"},
+    {"phase": 99, "name": "XStreamity", "command": "wget https://raw.githubusercontent.com/biko-73/xstreamity/main/installer.sh -qO - | /bin/sh", "type": "thirdparty", "desc": "X-Streamity"},
+    {"phase": 99, "name": "XKlass", "command": "wget https://dreambox4u.com/emilnabil237/plugins/xklass/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "XKlass"},
+    {"phase": 99, "name": "RaedQuickSignal", "command": "wget https://raw.githubusercontent.com/fairbird/RaedQuickSignal/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Raed Quick Signal"},
+    {"phase": 99, "name": "AjPanel", "command": "wget https://raw.githubusercontent.com/biko-73/AjPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "AjPanel"},
+    {"phase": 99, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "thirdparty", "desc": "Key Adder"},
+    {"phase": 99, "name": "DCWKeyAdd", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Auto DCW key add"},
+    {"phase": 99, "name": "LinuxsatPanel", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/Belfagor2005/LinuxsatPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Linuxsat Panel"},
+    {"phase": 99, "name": "SubsSupport", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "thirdparty", "desc": "SubsSupport"},
+    {"phase": 99, "name": "NewVirtualKeyBoard", "command": "wget https://raw.githubusercontent.com/fairbird/NewVirtualKeyBoard/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "New Virtual KeyBoard"},
 ]
