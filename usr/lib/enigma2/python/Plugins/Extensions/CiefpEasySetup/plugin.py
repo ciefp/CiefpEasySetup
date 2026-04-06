@@ -160,6 +160,7 @@ class CiefpEasySetup(Screen):
         <widget name="key_green"  position="280,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#1F771F" foregroundColor="#FFFFFF" />
         <widget name="key_yellow" position="540,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#9F9F13" foregroundColor="#000000" />
         <widget name="key_blue"   position="800,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#13389F" foregroundColor="#FFFFFF" />
+        <widget name="key_cyan"   position="1060,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#00FFFF" foregroundColor="#000000" />
     </screen>"""
 
     def __init__(self, session):
@@ -175,6 +176,7 @@ class CiefpEasySetup(Screen):
         self["key_green"] = Label(_("Start Installation"))
         self["key_yellow"] = Label(_("Check Status"))
         self["key_blue"] = Label(_("Reboot Options"))
+        self["key_cyan"] = Label(_("Menu:Language"))
 
         self.status_data = load_status() if IMPORT_OK else {}
         self.sync_with_system()
@@ -723,7 +725,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.2",
+            name="CiefpEasySetup v1.3",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
