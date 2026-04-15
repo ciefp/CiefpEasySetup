@@ -11,6 +11,7 @@ PLUGINS_DB = [
     {"phase": 1, "name": "streamlinksrv", "command": "opkg install streamlinksrv", "type": "opkg", "desc": "Streamlink srv"},
     {"phase": 1, "name": "python3-requests", "command": "opkg install python3-requests", "type": "opkg", "desc": "python3-requests"},
     {"phase": 1, "name": "python3-beautifulsoup4", "command": "opkg install python3-beautifulsoup4", "type": "opkg", "desc": "python3-beautifulsoup4"},
+    {"phase": 1, "name": "cifs-utils", "command": "opkg install cifs-utils", "type": "opkg", "desc": "cifs-utils"},
     {"phase": 1, "name": "oscam-emu", "command": "opkg install enigma2-plugin-softcams-oscam-emu", "type": "opkg", "desc": "OSCam EMU Softcam"},
     
     # ==================== FAZA 2 - CiefpSettings ====================
@@ -45,6 +46,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpRottenTomatoes", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpRottenTomatoes/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp RottenTomatoes"},
     {"phase": 2, "name": "CiefpOpenSubtitles", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpOpenSubtitles/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp OpenSubtitles"},
     {"phase": 2, "name": "CiefpSRTplayer", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSRTplayer/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp SRT Player"},
+    {"phase": 2, "name": "CiefpPicturePlayer", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPicturePlayer/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp Picture Player"},
     {"phase": 2, "name": "TitloviBrowser", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/TitloviBrowser/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Titlovi Browser"},
     {"phase": 2, "name": "WebCamE2PrenjSF", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/WebCamE2PrenjSF/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "WebCam E2 PrenjSF"},
 
