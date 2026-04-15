@@ -405,7 +405,10 @@ class CiefpEasySetup(Screen):
             self.mini_screen.close()
             self.mini_screen = None
 
-        # Prikaži poruku o rezultatu
+        # PRVO prikaži glavni prozor
+        self.show()
+
+        # Zatim prikaži poruku o rezultatu
         if success:
             msg = _("Plugin updated successfully!") + "\n\n" + \
                   _("Please restart Enigma2 for changes to take effect.")
@@ -419,13 +422,11 @@ class CiefpEasySetup(Screen):
             msg = _("Update failed!") + "\n\n" + \
                   _("Please check your internet connection and try again.")
             self.session.open(MessageBox, msg, MessageBox.TYPE_ERROR)
-            self.show()  # Vrati se na glavni ekran
 
     def restart_enigma2_after_update(self, answer):
         if answer:
             os.system("killall -9 enigma2")
-        else:
-            self.show()  # Vrati se na glavni ekran
+        # Ako korisnik odabere "No", samo ostaje na glavnom ekranu koji je već prikazan
 
     def update_status_text(self):
         self.status_data = load_status()
