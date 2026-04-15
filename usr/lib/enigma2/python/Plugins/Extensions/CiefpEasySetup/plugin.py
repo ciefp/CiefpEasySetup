@@ -77,6 +77,33 @@ def _(txt):
         "and internet/media speed (Flash/USB).": {"en": "and internet/media speed (Flash/USB).", "sr": "i brzine interneta/medija (Flash/USB)."},
         "Special thanks to the community.": {"en": "Special thanks to the community.", "sr": "Posebno hvala zajednici na testiranju."},
         "Special thanks to Gemini A.I. for support.": {"en": "Special thanks to Gemini A.I. for support.", "sr": "Posebna zahvala Gemini A.I. za podršku ."},
+        "Update plugin": {"en": "Update plugin", "sr": "Ažuriraj plugin"},
+        "Do you want to update CiefpEasySetup plugin?": {
+            "en": "Do you want to update CiefpEasySetup plugin?",
+            "sr": "Da li želite da ažurirate CiefpEasySetup plugin?"
+        },
+        "The plugin will be updated to the latest version.": {
+            "en": "The plugin will be updated to the latest version.",
+            "sr": "Plugin će biti ažuriran na najnoviju verziju."
+        },
+        "Updating plugin...": {"en": "Updating plugin...", "sr": "Ažuriranje plugina..."},
+        "CiefpEasySetup update in progress": {
+            "en": "CiefpEasySetup update in progress",
+            "sr": "CiefpEasySetup ažuriranje u toku"
+        },
+        "Plugin updated successfully!": {
+            "en": "Plugin updated successfully!",
+            "sr": "Plugin je uspešno ažuriran!"
+        },
+        "Please restart Enigma2 for changes to take effect.": {
+            "en": "Please restart Enigma2 for changes to take effect.",
+            "sr": "Molimo restartujte Enigma2 da bi promene stupile na snagu."
+        },
+        "Update failed!": {"en": "Update failed!", "sr": "Ažuriranje neuspešno!"},
+        "Please check your internet connection and try again.": {
+            "en": "Please check your internet connection and try again.",
+            "sr": "Molimo proverite internet konekciju i pokušajte ponovo."
+        },
     }
     if txt in translations:
         return translations[txt].get(CURRENT_LANG, txt)
@@ -240,6 +267,7 @@ class CiefpEasySetup(Screen):
         # Dodajemo "About" u listu koja se prikazuje korisniku
         options = [
             (_("Select Language"), "lang"),
+            (_("Update plugin"), "update"),  # <-- DODAJ OVO
             (_("About"), "about")  # Ovo je ključna reč koju šaljemo callback-u
         ]
         self.session.openWithCallback(self.config_menu_callback, ChoiceBox, title=_("Settings"), list=options)
@@ -251,8 +279,10 @@ class CiefpEasySetup(Screen):
                 langs = [("English", "en"), ("Srpski", "sr")]
                 self.session.openWithCallback(self.set_language, ChoiceBox, title=_("Select Language"), list=langs)
 
+            elif choice[1] == "update":  # <-- DODAJ OVAJ DEO
+                self.update_plugin()
+
             elif choice[1] == "about":
-                # Ako je korisnik kliknuo na About, pokreni funkciju koju smo gore dodali
                 self.show_about_info()
 
     def show_about_info(self):
@@ -329,6 +359,73 @@ class CiefpEasySetup(Screen):
             list_data.append((display_name, plugin_info))
 
         self["list"].setList(list_data)
+
+    def update_plugin(self):
+        # Pitaj korisnika za potvrdu
+        msg = _("Do you want to update CiefpEasySetup plugin?") + "\n\n" + \
+              _("The plugin will be updated to the latest version.")
+
+        self.session.openWithCallback(
+            self.confirm_update,
+            MessageBox,
+            msg,
+            MessageBox.TYPE_YESNO
+        )
+
+    def confirm_update(self, answer):
+        if answer:
+            # Sakrij glavni prozor tokom update-a
+            self.hide()
+
+            # Otvori progress prozor
+            if not self.mini_screen:
+                self.mini_screen = self.session.open(CiefpInstallProgress)
+
+            self.mini_screen.start_timer()
+            self.mini_screen.update_info(
+                _("Updating plugin..."),
+                _("CiefpEasySetup update in progress")
+            )
+
+            # Pokreni update komandu u pozadini sa timerom
+            self.update_timer = eTimer()
+            self.update_timer.callback.append(self.run_update_command)
+            self.update_timer.start(500, True)
+
+    def run_update_command(self):
+        # Komanda za update
+        update_cmd = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEasySetup/main/installer.sh -O - | /bin/sh"
+
+        # Izvrši komandu
+        success = run_command(update_cmd, skip_reboot=True)
+
+        # Zaustavi timer i zatvori progress prozor
+        if self.mini_screen:
+            self.mini_screen.stop_timer()
+            self.mini_screen.close()
+            self.mini_screen = None
+
+        # Prikaži poruku o rezultatu
+        if success:
+            msg = _("Plugin updated successfully!") + "\n\n" + \
+                  _("Please restart Enigma2 for changes to take effect.")
+            self.session.openWithCallback(
+                self.restart_enigma2_after_update,
+                MessageBox,
+                msg,
+                MessageBox.TYPE_YESNO
+            )
+        else:
+            msg = _("Update failed!") + "\n\n" + \
+                  _("Please check your internet connection and try again.")
+            self.session.open(MessageBox, msg, MessageBox.TYPE_ERROR)
+            self.show()  # Vrati se na glavni ekran
+
+    def restart_enigma2_after_update(self, answer):
+        if answer:
+            os.system("killall -9 enigma2")
+        else:
+            self.show()  # Vrati se na glavni ekran
 
     def update_status_text(self):
         self.status_data = load_status()
