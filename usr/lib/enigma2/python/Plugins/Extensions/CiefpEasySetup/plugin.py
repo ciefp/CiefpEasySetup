@@ -216,7 +216,8 @@ class CiefpEasySetup(Screen):
         self.current_phase_index = 0
         self.plugins_to_install = []
         self.current_plugin_index = 0
-
+        self.update_success = False
+        self.message_timer = None
         self.build_list()
         self.update_status_text()
         self.mini_screen = None
@@ -405,11 +406,20 @@ class CiefpEasySetup(Screen):
             self.mini_screen.close()
             self.mini_screen = None
 
+        # Sačuvaj rezultat za kasnije
+        self.update_success = success
+
         # PRVO prikaži glavni prozor
         self.show()
 
-        # Zatim prikaži poruku o rezultatu
-        if success:
+        # Koristi timer da otvori MessageBox nakon što se UI stabilizuje
+        self.message_timer = eTimer()
+        self.message_timer.callback.append(self.show_update_result)
+        self.message_timer.start(500, True)
+
+    def show_update_result(self):
+        # Prikaži poruku o rezultatu
+        if self.update_success:
             msg = _("Plugin updated successfully!") + "\n\n" + \
                   _("Please restart Enigma2 for changes to take effect.")
             self.session.openWithCallback(
@@ -426,7 +436,7 @@ class CiefpEasySetup(Screen):
     def restart_enigma2_after_update(self, answer):
         if answer:
             os.system("killall -9 enigma2")
-        # Ako korisnik odabere "No", samo ostaje na glavnom ekranu koji je već prikazan
+        # Ako korisnik odabere "No", samo ostaje na glavnom ekranu
 
     def update_status_text(self):
         self.status_data = load_status()
@@ -823,7 +833,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.4",
+            name="CiefpEasySetup v1.5",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
