@@ -132,6 +132,29 @@ def is_openpli():
         pass
     return False
 
+def is_openatv():
+    try:
+        if os.path.exists("/etc/issue"):
+            with open("/etc/issue", "r") as f:
+                content = f.read().lower()
+                if "openatv" in content:
+                    return True
+    except:
+        pass
+    return False
+
+def is_vuplus():
+    try:
+        if os.path.exists("/proc/stb/info/boxtype"):
+            with open("/proc/stb/info/boxtype", "r") as f:
+                # Većina Vu+ modela ovde vraća specifičan naziv (npr. vuzero4k)
+                content = f.read().lower()
+                if "vu" in content:
+                    return True
+    except:
+        pass
+    return False
+
 class CiefpInstallProgress(Screen):
     skin = """
     <screen name="CiefpInstallProgress" position="center,50" size="1200,120" title="Instalacija" backgroundColor="#1a1a1a" flags="wfNoBorder">
@@ -552,10 +575,18 @@ class CiefpEasySetup(Screen):
 
         # 2. Detekcija imidža i filtriranje liste
         pli_detected = is_openpli()
+        atv_detected = is_openatv() # Dodajte ovu liniju
+        vu_detected = is_vuplus() # Dodajte detekciju hardvera
         self.plugins_to_install = []
 
         for p in selected_list:
             name = p.get("name")
+            # Preskoči secret-feed ako NIJE OpenATV
+            if name == "secret-feed" and not atv_detected:
+                continue
+            # Ograničenje za VuChromium (samo Vu+ uređaji)
+            if name == "VuChromium" and not vu_detected:
+                continue
 
             # Dinamička promena komande za Abertis ako je detektovan OpenPLi
             if name == "CiefpSettingsT2miAbertis":
@@ -833,7 +864,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.5",
+            name="CiefpEasySetup v1.6",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
