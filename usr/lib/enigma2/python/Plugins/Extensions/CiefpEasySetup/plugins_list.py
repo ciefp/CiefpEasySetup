@@ -62,14 +62,14 @@ PLUGINS_DB = [
     {"phase": 3, "name": "YouTube", "command": "opkg install enigma2-plugin-extensions-youtube", "type": "opkg", "desc": "YouTube TV"},
     {"phase": 3, "name": "ytdlpwrapper", "command": "opkg install enigma2-plugin-extensions-ytdlpwrapper", "type": "opkg", "desc": "yt-dlp podrška"},
     {"phase": 3, "name": "DCWKeyAdd", "command": "opkg install enigma2-plugin-extensions-auto-dcw-key-add", "type": "opkg", "desc": "Auto DCW key add"},
-    {"phase": 3, "name": "VuChromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
+    {"phase": 3, "name": "chromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
     {"phase": 3, "name": "WebkitHbbTV", "command": "opkg install enigma2-plugin-extensions-webkithbbtv", "type": "opkg", "desc": "HbbTV podrška"},
 
     # ==================== RUČNA INSTALACIJA (Third Party Scripts) ====================
     {"phase": 99, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Astronomy"},
-    {"phase": 99, "name": "Estalker", "command": "wget https://github.com/emilnabil/download-plugins/raw/refs/heads/main/EStalker/EStalker.sh -O - | /bin/sh", "type": "thirdparty", "desc": "EStalker"},
     {"phase": 99, "name": "XStreamity", "command": "wget https://raw.githubusercontent.com/biko-73/xstreamity/main/installer.sh -qO - | /bin/sh", "type": "thirdparty", "desc": "X-Streamity"},
     {"phase": 99, "name": "XKlass", "command": "wget https://dreambox4u.com/emilnabil237/plugins/xklass/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "XKlass"},
+    {"phase": 99, "name": "Estalker", "command": "wget https://github.com/emilnabil/download-plugins/raw/refs/heads/main/EStalker/EStalker.sh -O - | /bin/sh", "type": "thirdparty", "desc": "EStalker"},
     {"phase": 99, "name": "RaedQuickSignal", "command": "wget https://raw.githubusercontent.com/fairbird/RaedQuickSignal/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Raed Quick Signal"},
     {"phase": 99, "name": "AjPanel", "command": "wget https://raw.githubusercontent.com/biko-73/AjPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "AjPanel"},
     {"phase": 99, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "thirdparty", "desc": "Key Adder"},

@@ -584,8 +584,8 @@ class CiefpEasySetup(Screen):
             # Preskoči secret-feed ako NIJE OpenATV
             if name == "secret-feed" and not atv_detected:
                 continue
-            # Ograničenje za VuChromium (samo Vu+ uređaji)
-            if name == "VuChromium" and not vu_detected:
+            # Ograničenje za chromium (samo Vu+ uređaji)
+            if name == "chromium" and not vu_detected:
                 continue
 
             # Dinamička promena komande za Abertis ako je detektovan OpenPLi
@@ -864,7 +864,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.6",
+            name="CiefpEasySetup v1.7",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
