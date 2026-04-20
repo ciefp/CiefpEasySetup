@@ -61,20 +61,30 @@ PLUGINS_DB = [
     {"phase": 3, "name": "XStreamity", "command": "opkg install enigma2-plugin-extensions-xstreamity", "type": "opkg", "desc": "XStreamity IPTV"},
     {"phase": 3, "name": "YouTube", "command": "opkg install enigma2-plugin-extensions-youtube", "type": "opkg", "desc": "YouTube TV"},
     {"phase": 3, "name": "ytdlpwrapper", "command": "opkg install enigma2-plugin-extensions-ytdlpwrapper", "type": "opkg", "desc": "yt-dlp podrška"},
-    {"phase": 3, "name": "DCWKeyAdd", "command": "opkg install enigma2-plugin-extensions-auto-dcw-key-add", "type": "opkg", "desc": "Auto DCW key add"},
-    {"phase": 3, "name": "chromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
+    {"phase": 3, "name": "Chromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
     {"phase": 3, "name": "WebkitHbbTV", "command": "opkg install enigma2-plugin-extensions-webkithbbtv", "type": "opkg", "desc": "HbbTV podrška"},
 
-    # ==================== RUČNA INSTALACIJA (Third Party Scripts) ====================
-    {"phase": 99, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Astronomy"},
-    {"phase": 99, "name": "XStreamity", "command": "wget https://raw.githubusercontent.com/biko-73/xstreamity/main/installer.sh -qO - | /bin/sh", "type": "thirdparty", "desc": "X-Streamity"},
-    {"phase": 99, "name": "XKlass", "command": "wget https://dreambox4u.com/emilnabil237/plugins/xklass/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "XKlass"},
-    {"phase": 99, "name": "Estalker", "command": "wget https://github.com/emilnabil/download-plugins/raw/refs/heads/main/EStalker/EStalker.sh -O - | /bin/sh", "type": "thirdparty", "desc": "EStalker"},
-    {"phase": 99, "name": "RaedQuickSignal", "command": "wget https://raw.githubusercontent.com/fairbird/RaedQuickSignal/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Raed Quick Signal"},
-    {"phase": 99, "name": "AjPanel", "command": "wget https://raw.githubusercontent.com/biko-73/AjPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "AjPanel"},
-    {"phase": 99, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "thirdparty", "desc": "Key Adder"},
-    {"phase": 99, "name": "DCWKeyAdd", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Auto DCW key add"},
-    {"phase": 99, "name": "LinuxsatPanel", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/Belfagor2005/LinuxsatPanel/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "Linuxsat Panel"},
-    {"phase": 99, "name": "SubsSupport", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "thirdparty", "desc": "SubsSupport"},
-    {"phase": 99, "name": "NewVirtualKeyBoard", "command": "wget https://raw.githubusercontent.com/fairbird/NewVirtualKeyBoard/main/installer.sh -O - | /bin/sh", "type": "thirdparty", "desc": "New Virtual KeyBoard"},
+    # ==================== FAZA 99 - Modifikovane skripte (Third Party Scripts) ====================
+    {"phase": 99, "name": "AjPanel", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/AjPanel_installer.sh", "type": "thirdparty", "desc": "AjPanel (Local)"},
+    {"phase": 99, "name": "LinuxsatPanel", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/LinuxsatPanel_installer.sh", "type": "thirdparty", "desc": "LinuxsatPanel (Local)"},
+    {"phase": 99, "name": "NewVirtualKeyBoard", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/NewVirtualKeyBoard_installer.sh", "type": "thirdparty", "desc": "Virtual Keyboard (Local)"},
+    {"phase": 99, "name": "XStreamity", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XStreamity_installer.sh", "type": "thirdparty", "desc": "X-Streamity (Local)"},
+    {"phase": 99, "name": "XKlass", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XKlass_installer.sh", "type": "thirdparty", "desc": "XKlass (Local)"},
+    {"phase": 99, "name": "RaedQuickSignal", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/RaedQuickSignal_installer.sh", "type": "thirdparty", "desc": "Raed Quick Signal (Local)"},
+    {"phase": 99, "name": "Estalker", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/Estalker_installer.sh", "type": "thirdparty", "desc": "EStalker (Local)"},
+
+    # ==================== FAZA 100 - EKSPERIMENTALNI PLUGINI (Ručna instalacija) ====================
+    # Ovi plugini se NE instaliraju sa "Install ALL" - samo ručno preko [X] selekcije
+    # Neki od njih možda imaju svoj restart i ne poštuju SKIP_REBOOT
+    {"phase": 100, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Astronomy (Experimental)"},
+    {"phase": 100, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "experimental", "desc": "Key Adder (Experimental)"},
+    {"phase": 100, "name": "SubsSupport", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "experimental", "desc": "SubsSupport (Experimental)"},
+    {"phase": 100, "name": "DCWKeyAdd", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "experimental", "desc": "Auto DCW key add (Experimental)"},
+    {"phase": 100, "name": "Levi45MulticamManager", "command": "wget https://dreambox4u.com/emilnabil237/plugins/levi45multicammanager/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Levi45MulticamManager (Experimental)"},
+    {"phase": 100, "name": "Levi45Addons", "command": "wget https://dreambox4u.com/emilnabil237/plugins/levi45-addonsmanager/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Levi45Addons (Experimental)"},
+	{"phase": 100, "name": "levi45-freeserver", "command": "wget https://raw.githubusercontent.com/emil237/plugins/refs/heads/main/levi45-freeserver/levi45-freeserver.sh -O - | /bin/sh", "type": "experimental", "desc": "levi45-freeserver (Experimental)"},
+    {"phase": 100, "name": "E2BissKeyEditor", "command": "wget https://raw.githubusercontent.com/ismail9875/E2BissKeyEditor/refs/heads/main/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "E2BissKeyEditor (Experimental)"},
+	{"phase": 100, "name": "OpenATV Develop feed", "command": "wget -O - -q https://feeds2.mynonpublic.com/devel-feed | bash", "type": "experimental", "desc": "OpenATV Develop feed (Experimental)"},
+    # Primer za dodavanje novih, netestiranih plugina:
+    # {"phase": 100, "name": "NekiNoviPlugin", "command": "wget https://neki.url/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Opis (Experimental)"},
 ]
