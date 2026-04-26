@@ -943,7 +943,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v1.8",
+            name="CiefpEasySetup v1.9",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
