@@ -12,6 +12,7 @@ PLUGINS_DB = [
     {"phase": 1, "name": "python3-requests", "command": "opkg install python3-requests", "type": "opkg", "desc": "python3-requests"},
     {"phase": 1, "name": "python3-beautifulsoup4", "command": "opkg install python3-beautifulsoup4", "type": "opkg", "desc": "python3-beautifulsoup4"},
     {"phase": 1, "name": "cifs-utils", "command": "opkg install cifs-utils", "type": "opkg", "desc": "cifs-utils"},
+    {"phase": 1, "name": "yt-dlp", "command": "opkg install yt-dlp", "type": "opkg", "desc": "yt-dlp"},
     {"phase": 1, "name": "oscam-emu", "command": "opkg install enigma2-plugin-softcams-oscam-emu", "type": "opkg", "desc": "OSCam EMU Softcam"},
     
     # ==================== FAZA 2 - CiefpSettings ====================
@@ -48,6 +49,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpSRTplayer", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSRTplayer/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp SRT Player"},
     {"phase": 2, "name": "CiefpPicturePlayer", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPicturePlayer/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp Picture Player"},
     {"phase": 2, "name": "CiefpVideoPlayer", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpVideoPlayer/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp Video Player"},
+    {"phase": 2, "name": "CiefpYouTube", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpYouTube/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpYouTube"},
     {"phase": 2, "name": "TitloviBrowser", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/TitloviBrowser/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Titlovi Browser"},
     {"phase": 2, "name": "WebCamE2PrenjSF", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/WebCamE2PrenjSF/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "WebCam E2 PrenjSF"},
 
@@ -79,8 +81,13 @@ PLUGINS_DB = [
     # Neki od njih možda imaju svoj restart i ne poštuju SKIP_REBOOT
     {"phase": 100, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Astronomy (Experimental)"},
     {"phase": 100, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "experimental", "desc": "Key Adder (Experimental)"},
-    {"phase": 100, "name": "DCWKeyAdd", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "experimental", "desc": "Auto DCW key add (Experimental)"},
     {"phase": 100, "name": "SubsSupport", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "experimental", "desc": "SubsSupport (Experimental)"},
+    {"phase": 100, "name": "DCWKeyAdd", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "experimental", "desc": "Auto DCW key add (Experimental)"},
+    {"phase": 100, "name": "Levi45MulticamManager", "command": "wget https://dreambox4u.com/emilnabil237/plugins/levi45multicammanager/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Levi45MulticamManager (Experimental)"},
+    {"phase": 100, "name": "Levi45Addons", "command": "wget https://dreambox4u.com/emilnabil237/plugins/levi45-addonsmanager/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Levi45Addons (Experimental)"},
+	{"phase": 100, "name": "levi45-freeserver", "command": "wget https://raw.githubusercontent.com/emil237/plugins/refs/heads/main/levi45-freeserver/levi45-freeserver.sh -O - | /bin/sh", "type": "experimental", "desc": "levi45-freeserver (Experimental)"},
+    {"phase": 100, "name": "E2BissKeyEditor", "command": "wget https://raw.githubusercontent.com/ismail9875/E2BissKeyEditor/refs/heads/main/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "E2BissKeyEditor (Experimental)"},
+	{"phase": 100, "name": "OpenATV Develop feed", "command": "wget -O - -q https://feeds2.mynonpublic.com/devel-feed | bash", "type": "experimental", "desc": "OpenATV Develop feed (Experimental)"},
     # Primer za dodavanje novih, netestiranih plugina:
     # {"phase": 100, "name": "NekiNoviPlugin", "command": "wget https://neki.url/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Opis (Experimental)"},
 ]
