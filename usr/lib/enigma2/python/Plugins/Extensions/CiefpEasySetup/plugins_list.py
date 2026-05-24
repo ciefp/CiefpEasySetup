@@ -13,6 +13,7 @@ PLUGINS_DB = [
     {"phase": 1, "name": "python3-beautifulsoup4", "command": "opkg install python3-beautifulsoup4", "type": "opkg", "desc": "python3-beautifulsoup4"},
     {"phase": 1, "name": "cifs-utils", "command": "opkg install cifs-utils", "type": "opkg", "desc": "cifs-utils"},
     {"phase": 1, "name": "yt-dlp", "command": "opkg install yt-dlp", "type": "opkg", "desc": "yt-dlp"},
+    {"phase": 1, "name": "ffmpeg", "command": "opkg install ffmpeg", "type": "opkg", "desc": "ffmpeg"},
     {"phase": 1, "name": "oscam-emu", "command": "opkg install enigma2-plugin-softcams-oscam-emu", "type": "opkg", "desc": "OSCam EMU Softcam"},
     
     # ==================== FAZA 2 - CiefpSettings ====================
