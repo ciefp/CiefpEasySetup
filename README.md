@@ -46,7 +46,7 @@ FTP the CiefpEasySetup folder to your box under:
 Set folder and script permissions to 755.
 
 Restart the Enigma2 GUI.
-```Bash
+```
 
 ## ⚙️ How It Works & Configuration
 The plugin relies on an optimized backend configuration system. It reads a centralized installer structure to pull required feeds, plugins, and dependencies safely.
