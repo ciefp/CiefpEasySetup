@@ -46,7 +46,7 @@ FTP the CiefpEasySetup folder to your box under:
 Set folder and script permissions to 755.
 
 Restart the Enigma2 GUI.
-Bash
+```Bash
 
 ## ⚙️ How It Works & Configuration
 The plugin relies on an optimized backend configuration system. It reads a centralized installer structure to pull required feeds, plugins, and dependencies safely.
@@ -70,12 +70,6 @@ Bug Reports & Requests: Please submit them via the GitHub Issues tracker.
 
 # Disclaimer: 
 This open-source utility is provided "as-is" for the Enigma2 community. Always back up your image/settings before running automated mass-installation scripts.
-
-
-## Zašto je ovaj README koristan za ovaj projekt:
-1. **Naglašava brzinu i automatizaciju:** To je glavna prednost tvog plugina i ono što privlači napredne korisnike.
-2. **Objašnjava `SKIP_REBOOT`:** Programeri i napredni korisnici koji vrše masovne instalacije odmah će prepoznati prednost te opcije.
-3. **Čist i profesionalan izgled:** Podiže vrijednost cijelog projekta na GitHubu.
 
 # Feedback: 
 Join the discussion on major sat-forums or follow the project updates.
