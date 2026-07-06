@@ -327,7 +327,7 @@ class CiefpEasySetup(Screen):
 
     def show_about_info(self):
         # Naslov i osnovni info (PY3)
-        about_text = "CiefpEasySetup v1.2\n"
+        about_text = "CiefpEasySetup v2.2\n"
         about_text += "Multi-Image One-Click Installer (PY3)\n\n"
 
         # Sekcija za vreme (Prevedena preko tvoje _(txt) funkcije)
@@ -942,7 +942,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v2.1",
+            name="CiefpEasySetup v2.2",
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
