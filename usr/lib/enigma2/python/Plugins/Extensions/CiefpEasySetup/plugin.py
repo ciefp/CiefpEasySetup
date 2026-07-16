@@ -219,7 +219,7 @@ class CiefpInstallProgress(Screen):
 
 class CiefpEasySetup(Screen):
     skin = """
-    <screen name="CiefpEasySetup" position="center,center" size="1920,1080" title="CiefpEasySetup - Multi-Image PY3 One-Click Installer" backgroundColor="#1a1a1a">
+    <screen name="CiefpEasySetup" position="center,center" size="1920,1080"  backgroundColor="#1a1a1a">
         <!-- Naslov sa verzijom (dinamički) -->
         <widget name="plugin_title" position="0,10" size="1920,50" font="Bold;34" halign="center" backgroundColor="#012e01" foregroundColor="#00FF00" text="..:: CiefpEasySetup Multi-Image One-Click Installer (Version{version}) ::.." />
 
