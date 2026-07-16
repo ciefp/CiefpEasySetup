@@ -11,8 +11,10 @@ from Components.Label import Label
 from enigma import eTimer
 import os
 import sys
-# --- DODAJ OVO ISPOD ---
+
 CURRENT_LANG = "sr"  # Podrazumevani jezik
+PLUGIN_VERSION = "2.3"
+PLUGIN_NAME = "CiefpEasySetup"
 
 
 def _(txt):
@@ -217,23 +219,37 @@ class CiefpInstallProgress(Screen):
 
 class CiefpEasySetup(Screen):
     skin = """
-    <screen name="CiefpEasySetup" position="center,center" size="1600,800" title="CiefpEasySetup - Multi-Image PY3 One-Click Installer)">
-        <widget name="list" position="20,20" size="780,680" scrollbarMode="showOnDemand" itemHeight="38" font="Regular;26" />
-        <widget name="background" position="820,20" size="750,740" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/background.png" zPosition="1" alphatest="on" />
-        <widget name="status" position="20,720" size="780,50" font="Regular;22" halign="center" valign="center" />
+    <screen name="CiefpEasySetup" position="center,center" size="1920,1080" title="CiefpEasySetup - Multi-Image PY3 One-Click Installer" backgroundColor="#1a1a1a">
+        <!-- Naslov sa verzijom (dinamički) -->
+        <widget name="plugin_title" position="0,10" size="1920,50" font="Bold;34" halign="center" backgroundColor="#012e01" foregroundColor="#00FF00" text="..:: CiefpEasySetup Multi-Image One-Click Installer (Version{version}) ::.." />
 
-        <widget name="key_red"    position="20,770"  size="240,40" font="Regular;24" halign="center" backgroundColor="#9F1313" foregroundColor="#FFFFFF" />
-        <widget name="key_green"  position="280,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#1F771F" foregroundColor="#FFFFFF" />
-        <widget name="key_yellow" position="540,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#9F9F13" foregroundColor="#000000" />
-        <widget name="key_blue"   position="800,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#13389F" foregroundColor="#FFFFFF" />
-        <widget name="key_cyan"   position="1060,770" size="240,40" font="Regular;24" halign="center" backgroundColor="#00FFFF" foregroundColor="#000000" />
-    </screen>"""
+        <!-- Glavna lista -->
+        <widget name="list" position="40,80" size="880,810" scrollbarMode="showOnDemand" itemHeight="45" font="Regular;30" transparent="1" />
+
+        <!-- Background slika -->
+        <widget name="background" position="980,80" size="880,840" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/background.png" zPosition="1" alphatest="on" />
+
+        <!-- Status bar -->
+        <widget name="status" position="40,930" size="880,60" font="Regular;26" halign="center" valign="center" transparent="1" foregroundColor="#00FF00" />
+
+        <!-- Dugmad -->
+        <widget name="key_red"    position="40,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#9F1313" foregroundColor="#FFFFFF" />
+        <widget name="key_green"  position="340,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#1F771F" foregroundColor="#FFFFFF" />
+        <widget name="key_yellow" position="640,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#9F9F13" foregroundColor="#000000" />
+        <widget name="key_blue"   position="940,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#13389F" foregroundColor="#FFFFFF" />
+        <widget name="key_cyan"   position="1240,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#00FFFF" foregroundColor="#000000" />
+
+        <!-- Dodatno dugme za Menu -->
+        <widget name="key_menu"   position="1540,950" size="340,50" font="Regular;28" halign="center" backgroundColor="#333333" foregroundColor="#FFFFFF" />
+    </screen>
+    """.format(version=PLUGIN_VERSION)
 
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
         self.IMPORT_OK = IMPORT_OK
-
+        self["plugin_title"] = Label(
+            f"..:: CiefpEasySetup Multi-Image One-Click Installer ::..  (Version {PLUGIN_VERSION})")
         self["list"] = MenuList([])
         self["background"] = Pixmap()
         self["status"] = Label("Učitavam stanje...")
@@ -942,7 +958,7 @@ class CiefpEasySetup(Screen):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name="CiefpEasySetup v2.2",
+            name="{0} v{1}".format(PLUGIN_NAME, PLUGIN_VERSION),
             description="Multi-Image One-Click (PY3 Only: OpenATV, Pure2, OpenSPA, OpenPLi)",
             where=PluginDescriptor.WHERE_PLUGINMENU,
             icon="plugin.png",
