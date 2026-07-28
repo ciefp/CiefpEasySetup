@@ -81,6 +81,7 @@ PLUGINS_DB = [
     # ==================== FAZA 100 - EKSPERIMENTALNI PLUGINI (Ručna instalacija) ====================
     # Ovi plugini se NE instaliraju sa "Install ALL" - samo ručno preko [X] selekcije
     # Neki od njih možda imaju svoj restart i ne poštuju SKIP_REBOOT
+    {"phase": 100, "name": "XtreamNew", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ahmedhussein4342-lgtm/XtreamNew/main/install_xtreamnew.sh -O - | /bin/sh", "type": "experimental", "desc": "XtreamNew (Experimental)"},
     {"phase": 100, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Astronomy (Experimental)"},
     {"phase": 100, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "experimental", "desc": "Key Adder (Experimental)"},
     {"phase": 100, "name": "SubsSupport", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "experimental", "desc": "SubsSupport (Experimental)"},
