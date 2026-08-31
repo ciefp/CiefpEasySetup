@@ -8,6 +8,7 @@ PLUGINS_DB = [
     {"phase": 1, "name": "curl", "command": "opkg install curl", "type": "opkg", "desc": "Curl"},
     {"phase": 1, "name": "python3-lxml", "command": "opkg install python3-lxml", "type": "opkg", "desc": "python3-lxml"},
     {"phase": 1, "name": "gstplayer", "command": "opkg install gstplayer", "type": "opkg", "desc": "GstPlayer"},
+    {"phase": 1, "name": "streamlink", "command": "opkg install streamlink", "type": "opkg", "desc": "Streamlink"},
     {"phase": 1, "name": "streamlinksrv", "command": "opkg install streamlinksrv", "type": "opkg", "desc": "Streamlink srv"},
     {"phase": 1, "name": "python3-requests", "command": "opkg install python3-requests", "type": "opkg", "desc": "python3-requests"},
     {"phase": 1, "name": "python3-beautifulsoup4", "command": "opkg install python3-beautifulsoup4", "type": "opkg", "desc": "python3-beautifulsoup4"},
@@ -53,7 +54,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpYouTube", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpYouTube/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpYouTube"},
     {"phase": 2, "name": "CiefpE2editor", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpE2editor/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpE2editor"},
     {"phase": 2, "name": "CiefpBootlogo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpBootlogo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpBootlogo"},
-    {"phase": 2, "name": "CiefpPiconManager", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPiconManager/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpPiconManager"},
+    {"phase": 2, "name": "CiefpPiconManagerE2editor", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPiconManager/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpPiconManager"},
     {"phase": 2, "name": "TitloviBrowser", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/TitloviBrowser/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Titlovi Browser"},
     {"phase": 2, "name": "WebCamE2PrenjSF", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/WebCamE2PrenjSF/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "WebCam E2 PrenjSF"},
 

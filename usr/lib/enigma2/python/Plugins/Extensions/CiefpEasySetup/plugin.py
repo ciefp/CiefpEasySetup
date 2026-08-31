@@ -13,7 +13,7 @@ import os
 import sys
 
 CURRENT_LANG = "sr"  # Podrazumevani jezik
-PLUGIN_VERSION = "2.5"
+PLUGIN_VERSION = "2.6"
 PLUGIN_NAME = "CiefpEasySetup"
 
 
