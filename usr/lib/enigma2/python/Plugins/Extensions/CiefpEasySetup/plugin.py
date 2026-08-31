@@ -343,7 +343,7 @@ class CiefpEasySetup(Screen):
 
     def show_about_info(self):
         # Naslov i osnovni info (PY3)
-        about_text = "CiefpEasySetup v2.2\n"
+        about_text = "CiefpEasySetup v2.6\n"
         about_text += "Multi-Image One-Click Installer (PY3)\n\n"
 
         # Sekcija za vreme (Prevedena preko tvoje _(txt) funkcije)
