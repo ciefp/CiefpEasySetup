@@ -711,12 +711,15 @@ class CiefpEasySetup(Screen):
 
         # Definiši callback koji se poziva posle faze 0
         def after_phase0():
-            # Pokreni fazu 1-5
             self.plugins_to_install = sorted(others, key=lambda x: x.get("phase", 0))
             if not self.plugins_to_install:
                 self.close_mini_screen()
                 self.show()
-                self.session.open(MessageBox, _("All selected plugins are already installed!"), MessageBox.TYPE_INFO)
+                self.msg_timer = eTimer()
+                self.msg_timer.callback.append(lambda: self.session.open(
+                    MessageBox, _("All selected plugins are already installed!"), MessageBox.TYPE_INFO
+                ))
+                self.msg_timer.start(300, True)
                 return
             self.current_plugin_index = 0
             if self.mini_screen:
@@ -734,12 +737,15 @@ class CiefpEasySetup(Screen):
             self.start_actual_installation()
 
     def after_phase_zero_only(self):
-        """Callback kada se završi samo Faza 0."""
         self.close_mini_screen()
         self.show()
         self.build_list()
         self.update_status_text()
-        self.session.open(MessageBox, _("Phase 0 finished."), MessageBox.TYPE_INFO, timeout=5)
+        self.msg_timer = eTimer()
+        self.msg_timer.callback.append(lambda: self.session.open(
+            MessageBox, _("Phase 0 finished."), MessageBox.TYPE_INFO, timeout=5
+        ))
+        self.msg_timer.start(300, True)
 
     def start_actual_installation(self):
         self.plugin_timer = eTimer()
