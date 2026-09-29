@@ -13,7 +13,7 @@ import os
 import sys
 
 CURRENT_LANG = "sr"  # Podrazumevani jezik
-PLUGIN_VERSION = "2.8"
+PLUGIN_VERSION = "2.9"
 PLUGIN_NAME = "CiefpEasySetup"
 
 
@@ -310,8 +310,8 @@ class CiefpEasySetup(Screen):
 
         self.status_data["plugins"] = current_plugins
 
-        # Osveži statuse faza (1, 2, 3)
-        for phase in [1, 2, 3]:
+        # Osveži statuse faza (1, 2, 3, 4, 5, 6)
+        for phase in [1, 2, 3, 4, 5, 6]:
             phase_plugins = [p for p in PLUGINS_DB if p.get("phase") == phase]
             self.status_data[f"phase{phase}_done"] = all(
                 current_plugins.get(pp["name"], {}).get("success") for pp in phase_plugins
@@ -343,7 +343,7 @@ class CiefpEasySetup(Screen):
 
     def show_about_info(self):
         # Naslov i osnovni info (PY3)
-        about_text = "CiefpEasySetup v2.6\n"
+        about_text = f"CiefpEasySetup v{PLUGIN_VERSION}\n"
         about_text += "Multi-Image One-Click Installer (PY3)\n\n"
 
         # Sekcija za vreme (Prevedena preko tvoje _(txt) funkcije)
@@ -506,9 +506,8 @@ class CiefpEasySetup(Screen):
             return _("Not done")
 
         # Samo faze 1,2,3 u statusu (Phase 99 i 100 se ne prikazuju)
-        txt = f"{_('Phase')} 1: {get_phase_status(1)}  |  "
-        txt += f"{_('Phase')} 2: {get_phase_status(2)}  |  "
-        txt += f"{_('Phase')} 3: {get_phase_status(3)}"
+        txt = f"P1:{get_phase_status(1)} P2:{get_phase_status(2)} P3:{get_phase_status(3)} "
+        txt += f"P4:{get_phase_status(4)} P5:{get_phase_status(5)} P6:{get_phase_status(6)}"
 
         self["status"].setText(txt)
 
@@ -529,7 +528,10 @@ class CiefpEasySetup(Screen):
             success = run_command(plugin.get("command"), skip_reboot=False)
 
             # Sačuvaj status
-            self.status_data.setdefault("plugins", {})[plugin.get("name")] = {"success": success}
+            self.status_data.setdefault("plugins", {})[plugin.get("name")] = {
+                "success": success,
+                "phase": plugin.get("phase")
+            }
             save_status(self.status_data)
 
             # Zatvori mini i osveži listu
@@ -555,12 +557,14 @@ class CiefpEasySetup(Screen):
         else:
             # Ako nema [X], otvori standardni meni za faze
             options = [
-                (_("Install ALL"), "all"),
+                (_("Install ALL (Phase 1-5)"), "all"),
                 (_("Only Phase 1 (System)"), 1),
                 (_("Only Phase 2 (Ciefp plugins)"), 2),
                 (_("Only Phase 3 (Others)"), 3),
-                (_("Only Phase 99 (Third Party)"), 99),
-                (_("Only Phase 100 (Experimental)"), 100),  # <-- DODAJ OVO
+                (_("Only Phase 4 (Third Party)"), 4),
+                (_("Only Phase 5 (Secure)"), 5),
+                (_("Only Phase 6 (Reserve)"), 6),
+                (_("Only Phase 100 (Experimental)"), 100),
                 (_("Phase 1 + Phase 2"), "1+2")
             ]
             self.session.openWithCallback(self.start_selected_install, ChoiceBox,
@@ -579,11 +583,12 @@ class CiefpEasySetup(Screen):
             choice = choice[1]
 
         all_plugins = PLUGINS_DB
-        # 🔥 mapa duplikata (phase 3 ↔ phase 99)
-        self.phase3_names = set(p["name"] for p in all_plugins if p.get("phase") == 3)
-        self.phase99_names = set(p["name"] for p in all_plugins if p.get("phase") == 99)
 
-        self.duplicate_plugins = self.phase3_names.intersection(self.phase99_names)
+        # 🔥 mapa duplikata (phase 3 ↔ phase 4)
+        self.phase3_names = set(p["name"] for p in all_plugins if p.get("phase") == 3)
+        self.phase4_names = set(p["name"] for p in all_plugins if p.get("phase") == 4)
+
+        self.duplicate_plugins = self.phase3_names.intersection(self.phase4_names)
         plugins_status = self.status_data.get("plugins", {})
         selected_list = []
 
@@ -591,9 +596,9 @@ class CiefpEasySetup(Screen):
         if choice == "manual":
             selected_list = [item[1] for item in self["list"].list if item[1].get("selected", False)]
             self.current_phase_label = _("Manual Selection")
+
         elif choice == "all":
             selected_list = []
-
             for p in all_plugins:
                 name = p.get("name")
                 phase = p.get("phase")
@@ -602,18 +607,22 @@ class CiefpEasySetup(Screen):
                 if phase == 100:
                     continue
 
-                # 🔥 SKIP faza 99 ako je duplikat (biće fallback)
-                if phase == 99 and name in self.duplicate_plugins:
+                # 🔥 PRESKOČI Phase 6 (Reserve) - NE ulazi u Install ALL
+                if phase == 6:
+                    continue
+
+                # 🔥 SKIP faza 4 ako je duplikat (biće fallback)
+                if phase == 4 and name in self.duplicate_plugins:
                     continue
 
                 selected_list.append(p)
-            self.current_phase_label = _("Install ALL")
+            self.current_phase_label = _("Install ALL (Phase 1-5)")
+
         elif isinstance(choice, int):
+            # Pokriva sve pojedinačne faze: 1, 2, 3, 4, 5, 6, 100
             selected_list = [p for p in all_plugins if p.get("phase") == choice]
             self.current_phase_label = f"{_('Phase')} {choice}"
-        elif isinstance(choice, int):
-            selected_list = [p for p in all_plugins if p.get("phase") == choice]
-            self.current_phase_label = f"{_('Phase')} {choice}"
+
         elif choice == "1+2":
             selected_list = [p for p in all_plugins if p.get("phase") in [1, 2]]
             self.current_phase_label = f"{_('Phase')} 1 + 2"
@@ -624,15 +633,17 @@ class CiefpEasySetup(Screen):
 
         # 2. Detekcija imidža i filtriranje liste
         pli_detected = is_openpli()
-        atv_detected = is_openatv()  # Dodajte ovu liniju
-        vu_detected = is_vuplus()  # Dodajte detekciju hardvera
+        atv_detected = is_openatv()
+        vu_detected = is_vuplus()
         self.plugins_to_install = []
 
         for p in selected_list:
             name = p.get("name")
+
             # Preskoči secret-feed ako NIJE OpenATV
             if name == "secret-feed" and not atv_detected:
                 continue
+
             # Ograničenje za chromium (samo Vu+ uređaji)
             if name == "chromium" and not vu_detected:
                 continue
@@ -646,7 +657,7 @@ class CiefpEasySetup(Screen):
                     p[
                         "command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertis/main/installer.sh -O - | /bin/sh"
 
-            # Provera da li je već instaliran (da preskočimo nepotrebno)
+            # Provera da li je već instaliran
             status = plugins_status.get(name)
             if not status or not status.get("success", False):
                 self.plugins_to_install.append(p)
@@ -718,10 +729,6 @@ class CiefpEasySetup(Screen):
         plugin = self.plugins_to_install[self.current_plugin_index]
         name = plugin.get("name", "Unknown")
 
-        # Uzmi podatke o trenutnom pluginu
-        plugin = self.plugins_to_install[self.current_plugin_index]
-        name = plugin.get("name", "Unknown")
-
         # Javi progres baru
         if self.mini_screen:
             status = f"{_('Installation in progress...')}"
@@ -734,10 +741,10 @@ class CiefpEasySetup(Screen):
         name = plugin.get("name")
         phase = plugin.get("phase")
 
-        # 🔥 fallback SAMO za duplikate
+        # 🔥 fallback SAMO za duplikate (faza 3 → faza 4)
         if not success and phase == 3 and name in getattr(self, "duplicate_plugins", set()):
             fallback = next(
-                (p for p in PLUGINS_DB if p.get("name") == name and p.get("phase") == 99),
+                (p for p in PLUGINS_DB if p.get("name") == name and p.get("phase") == 4),
                 None
             )
 
@@ -793,7 +800,7 @@ class CiefpEasySetup(Screen):
             return True
 
         # Postavi status za sve faze (bitno!)
-        for phase in [1, 2, 3]:
+        for phase in [1, 2, 3, 4, 5, 6]:
             self.status_data[f"phase{phase}_done"] = is_phase_done(phase)
 
         save_status(self.status_data)
@@ -870,7 +877,7 @@ class CiefpEasySetup(Screen):
         self.status_data["plugins"] = new_plugins_status
 
         # 3. Ponovo izračunaj da li su faze gotove
-        for phase in [1, 2, 3]:
+        for phase in [1, 2, 3, 4, 5, 6]:
             phase_plugins = [p for p in PLUGINS_DB if p.get("phase") == phase]
             is_done = True
             for pp in phase_plugins:
@@ -892,7 +899,10 @@ class CiefpEasySetup(Screen):
 
         msg += f"{_('Phase')} 1: {get_done_text(self.status_data.get('phase1_done'))}\n"
         msg += f"{_('Phase')} 2: {get_done_text(self.status_data.get('phase2_done'))}\n"
-        msg += f"{_('Phase')} 3: {get_done_text(self.status_data.get('phase3_done'))}\n\n"
+        msg += f"{_('Phase')} 3: {get_done_text(self.status_data.get('phase3_done'))}\n"
+        msg += f"{_('Phase')} 4: {get_done_text(self.status_data.get('phase4_done'))}\n"
+        msg += f"{_('Phase')} 5: {get_done_text(self.status_data.get('phase5_done'))}\n"
+        msg += f"{_('Phase')} 6: {get_done_text(self.status_data.get('phase6_done'))}\n\n"
 
         msg += _("System is successfully synchronized with the list.")
         self.session.open(MessageBox, msg, MessageBox.TYPE_INFO)

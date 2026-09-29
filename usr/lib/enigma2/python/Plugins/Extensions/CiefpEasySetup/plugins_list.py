@@ -37,7 +37,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpTvProgramSK", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpTvProgramSK/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp TV Program SK"},
     {"phase": 2, "name": "CiefpTvProgramA1HR", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpTvProgramA1HR/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp TV Program A1 HR"},
     {"phase": 2, "name": "CiefpTvTodayDE", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpTvTodayDE/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp TV Today DE"},
-    {"phase": 2, "name": "CiefpEPGshare ", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEPGshare/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp EPGshare"},
+    {"phase": 2, "name": "CiefpEPGshare", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEPGshare/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp EPGshare"},
     {"phase": 2, "name": "CiefpTvProgramSBB", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpTvProgramSBB/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp TV Program SBB"},
     {"phase": 2, "name": "CiefpOscamEditor", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpOscamEditor/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp Oscam Editor"},
     {"phase": 2, "name": "CiefpSatelliteAnalyzer", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSatelliteAnalyzer/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Ciefp Satellite Analyzer"},
@@ -56,6 +56,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpBootlogo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpBootlogo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpBootlogo"},
     {"phase": 2, "name": "CiefpPiconManager", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPiconManager/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpPiconManager"},
     {"phase": 2, "name": "CiefpSignalInfo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSignalInfo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpSignalInfo"},
+    {"phase": 2, "name": "CiefpEPGinfo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEPGinfo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpEPGinfo"},
     {"phase": 2, "name": "TitloviBrowser", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/TitloviBrowser/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Titlovi Browser"},
     {"phase": 2, "name": "WebCamE2PrenjSF", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/WebCamE2PrenjSF/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "WebCam E2 PrenjSF"},
 
@@ -73,23 +74,26 @@ PLUGINS_DB = [
     {"phase": 3, "name": "Chromium", "command": "opkg install enigma2-plugin-extensions-chromium", "type": "opkg", "desc": "Pretraživač"},
     {"phase": 3, "name": "WebkitHbbTV", "command": "opkg install enigma2-plugin-extensions-webkithbbtv", "type": "opkg", "desc": "HbbTV podrška"},
 
-    # ==================== FAZA 99 - Modifikovane skripte (Third Party Scripts) ====================
-    {"phase": 99, "name": "AjPanel", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/AjPanel_installer.sh", "type": "thirdparty", "desc": "AjPanel (Local)"},
-    {"phase": 99, "name": "LinuxsatPanel", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/LinuxsatPanel_installer.sh", "type": "thirdparty", "desc": "LinuxsatPanel (Local)"},
-    {"phase": 99, "name": "NewVirtualKeyBoard", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/NewVirtualKeyBoard_installer.sh", "type": "thirdparty", "desc": "Virtual Keyboard (Local)"},
-    {"phase": 99, "name": "XStreamity", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XStreamity_installer.sh", "type": "thirdparty", "desc": "X-Streamity (Local)"},
-    {"phase": 99, "name": "XKlass", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XKlass_installer.sh", "type": "thirdparty", "desc": "XKlass (Local)"},
-    {"phase": 99, "name": "RaedQuickSignal", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/RaedQuickSignal_installer.sh", "type": "thirdparty", "desc": "Raed Quick Signal (Local)"},
-    {"phase": 99, "name": "Estalker", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/Estalker_installer.sh", "type": "thirdparty", "desc": "EStalker (Local)"},
+    # ==================== FAZA 4 - Modifikovane skripte (Third Party Scripts) ====================
+    {"phase": 4, "name": "LinuxsatPanel", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/LinuxsatPanel_installer.sh", "type": "thirdparty", "desc": "LinuxsatPanel (Local)"},
+    {"phase": 4, "name": "NewVirtualKeyBoard", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/NewVirtualKeyBoard_installer.sh", "type": "thirdparty", "desc": "Virtual Keyboard (Local)"},
+    {"phase": 4, "name": "XStreamity", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XStreamity_installer.sh", "type": "thirdparty", "desc": "X-Streamity (Local)"},
+    {"phase": 4, "name": "XKlass", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XKlass_installer.sh", "type": "thirdparty", "desc": "XKlass (Local)"},
+    {"phase": 4, "name": "RaedQuickSignal", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/RaedQuickSignal_installer.sh", "type": "thirdparty", "desc": "Raed Quick Signal (Local)"},
+    {"phase": 4, "name": "SubsSupport", "command": "SKIP_REBOOT=1 sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/subssupport-install.sh", "type": "thirdparty", "desc": "SubsSupport (local)"},
 
+    # ==================== FAZA 5 - Sigurna skripta bez restarta (secure) ====================
+    {"phase": 5, "name": "XtreamNew", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ahmedhussein4342-lgtm/XtreamNew/main/install_xtreamnew.sh -O - | /bin/sh", "type": "secure", "desc": "XtreamNew (Secure)"},
+    {"phase": 5, "name": "Ultra Stalker", "command": "wget -qO- https://raw.githubusercontent.com/K3bOra/-UltraStalker/main/install.sh |/bin/sh", "type": "secure", "desc": "Ultra Stalker (Secure)"},
+
+    # ==================== FAZA 6 - Rezervna instalacija ako ne prođe instalacija sa feeda (reserve) ====================
+    {"phase": 6, "name": "AjPan", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/AjPanel_installer.sh", "type": "reserve", "desc": "AjPanel (reserve)"},
+    {"phase": 6, "name": "EStalker", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/Estalker_installer.sh", "type": "reserve", "desc": "EStalker (reserve)"},
     # ==================== FAZA 100 - EKSPERIMENTALNI PLUGINI (Ručna instalacija) ====================
     # Ovi plugini se NE instaliraju sa "Install ALL" - samo ručno preko [X] selekcije
     # Neki od njih možda imaju svoj restart i ne poštuju SKIP_REBOOT
-    {"phase": 100, "name": "XtreamNew", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ahmedhussein4342-lgtm/XtreamNew/main/install_xtreamnew.sh -O - | /bin/sh", "type": "experimental", "desc": "XtreamNew (Experimental)"},
-    {"phase": 100, "name": "Ultra Stalker", "command": "wget -qO- https://raw.githubusercontent.com/K3bOra/-UltraStalker/main/install.sh |/bin/sh", "type": "experimental", "desc": "Ultra Stalker (Experimental)"},
     {"phase": 100, "name": "Astronomy", "command": "wget https://raw.githubusercontent.com/emilnabil/download-plugins/refs/heads/main/astronomy/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Astronomy (Experimental)"},
     {"phase": 100, "name": "KeyAdder", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/fairbird/KeyAdder/main/installer.sh -O - |/bin/sh", "type": "experimental", "desc": "Key Adder (Experimental)"},
-    {"phase": 100, "name": "SubsSupport", "command": "wget -q --no-check-certificate https://github.com/popking159/ssupport/raw/main/subssupport-install.sh -O - | /bin/sh", "type": "experimental", "desc": "SubsSupport (Experimental)"},
     {"phase": 100, "name": "DCWKeyAdd", "command": "wget https://raw.githubusercontent.com/Ham-ahmed/294/refs/heads/main/auto-dcw-key-add_v1.0.5.sh -O - | /bin/sh", "type": "experimental", "desc": "Auto DCW key add (Experimental)"},
     {"phase": 100, "name": "Levi45MulticamManager", "command": "wget https://dreambox4u.com/emilnabil237/plugins/levi45multicammanager/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Levi45MulticamManager (Experimental)"},
     {"phase": 100, "name": "Levi45Addons", "command": "wget https://dreambox4u.com/emilnabil237/plugins/levi45-addonsmanager/installer.sh -O - | /bin/sh", "type": "experimental", "desc": "Levi45Addons (Experimental)"},
