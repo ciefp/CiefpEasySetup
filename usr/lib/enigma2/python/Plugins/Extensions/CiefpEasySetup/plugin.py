@@ -16,6 +16,17 @@ CURRENT_LANG = "sr"  # Podrazumevani jezik
 PLUGIN_VERSION = "2.9"
 PLUGIN_NAME = "CiefpEasySetup"
 
+# Nazivi faza za separatore
+PHASE_TITLES = {
+    1: "═══ FAZA 1 - System ═══",
+    2: "═══ FAZA 2 - Ciefp Plugins ═══",
+    3: "═══ FAZA 3 - Feed Plugins ═══",
+    4: "═══ FAZA 4 - Third Party ═══",
+    5: "═══ FAZA 5 - Secure ═══",
+    6: "═══ FAZA 6 - Reserve ═══",
+    100: "═══ FAZA 100 - Experimental ═══",
+}
+
 
 def _(txt):
     translations = {
@@ -163,7 +174,6 @@ def is_vuplus():
     try:
         if os.path.exists("/proc/stb/info/boxtype"):
             with open("/proc/stb/info/boxtype", "r") as f:
-                # Većina Vu+ modela ovde vraća specifičan naziv (npr. vuzero4k)
                 content = f.read().lower()
                 if "vu" in content:
                     return True
@@ -200,14 +210,13 @@ class CiefpInstallProgress(Screen):
         self.elapsed_time += 1
         minutes = self.elapsed_time // 60
         seconds = self.elapsed_time % 60
-        # Formatiranje u 00:00 stil
         time_str = _("Time: ") + "%02d:%02d" % (minutes, seconds)
         self["timer_label"].setText(time_str)
 
     def start_timer(self):
         self.elapsed_time = 0
         self["timer_label"].setText(_("Time: 00:00"))
-        self.stopwatch_timer.start(1000)  # Pokreće se na svakih 1000ms (1 sekunda)
+        self.stopwatch_timer.start(1000)
 
     def stop_timer(self):
         self.stopwatch_timer.stop()
@@ -220,26 +229,20 @@ class CiefpInstallProgress(Screen):
 class CiefpEasySetup(Screen):
     skin = """
     <screen name="CiefpEasySetup" position="center,center" size="1920,1080"  backgroundColor="#1a1a1a">
-        <!-- Naslov sa verzijom (dinamički) -->
         <widget name="plugin_title" position="0,10" size="1920,50" font="Bold;34" halign="center" backgroundColor="#012e01" foregroundColor="#00FF00" text="..:: CiefpEasySetup Multi-Image One-Click Installer (Version{version}) ::.." />
 
-        <!-- Glavna lista -->
         <widget name="list" position="40,80" size="880,810" scrollbarMode="showOnDemand" itemHeight="45" font="Regular;30" transparent="1" />
 
-        <!-- Background slika -->
         <widget name="background" position="980,80" size="880,840" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/background.png" zPosition="1" alphatest="on" />
 
-        <!-- Status bar -->
         <widget name="status" position="40,930" size="880,60" font="Regular;26" halign="center" valign="center" transparent="1" foregroundColor="#00FF00" />
 
-        <!-- Dugmad -->
         <widget name="key_red"    position="40,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#9F1313" foregroundColor="#FFFFFF" />
         <widget name="key_green"  position="340,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#1F771F" foregroundColor="#FFFFFF" />
         <widget name="key_yellow" position="640,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#9F9F13" foregroundColor="#000000" />
         <widget name="key_blue"   position="940,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#13389F" foregroundColor="#FFFFFF" />
         <widget name="key_cyan"   position="1240,1000" size="280,50" font="Regular;28" halign="center" backgroundColor="#00FFFF" foregroundColor="#000000" />
 
-        <!-- Dodatno dugme za Menu -->
         <widget name="key_menu"   position="1540,950" size="340,50" font="Regular;28" halign="center" backgroundColor="#333333" foregroundColor="#FFFFFF" />
     </screen>
     """.format(version=PLUGIN_VERSION)
@@ -253,7 +256,6 @@ class CiefpEasySetup(Screen):
         self["list"] = MenuList([])
         self["background"] = Pixmap()
         self["status"] = Label("Učitavam stanje...")
-        # ZAMENI STARE LINIJE OVIM:
         self["key_red"] = Label(_("Exit"))
         self["key_green"] = Label(_("Start Installation"))
         self["key_yellow"] = Label(_("Check Status"))
@@ -262,9 +264,8 @@ class CiefpEasySetup(Screen):
 
         self.status_data = load_status() if IMPORT_OK else {}
         self.sync_with_system()
-        # DODAJ OVE LINIJE:
         global CURRENT_LANG
-        CURRENT_LANG = self.status_data.get("settings_lang", "sr")  # Ako nema ništa u JSON, stavi 'sr'
+        CURRENT_LANG = self.status_data.get("settings_lang", "sr")
         self.success_plugins = set()
         self.failed_plugins = set()
         self.current_phases = []
@@ -277,40 +278,81 @@ class CiefpEasySetup(Screen):
         self.update_status_text()
         self.mini_screen = None
 
-        self["actions"] = ActionMap(["ColorActions", "OkCancelActions", "MenuActions", "DirectionActions"], {
-            "red": self.exit,
-            "green": self.show_install_menu,
-            "yellow": self.check_status,
-            "blue": self.show_reboot_menu,
-            "menu": self.show_config_menu,
-            "ok": self.ok,
-            "cancel": self.exit,
-        }, -1)
+        # Nakon build_list, pomeri selekciju na prvi pravi plugin (preskoči separator)
+        self._move_to_first_plugin()
 
+        self["actions"] = ActionMap(
+            ["ColorActions", "OkCancelActions", "MenuActions", "DirectionActions"],
+            {
+                "red": self.exit,
+                "green": self.show_install_menu,
+                "yellow": self.check_status,
+                "blue": self.show_reboot_menu,
+                "menu": self.show_config_menu,
+                "ok": self.ok,
+                "cancel": self.exit,
+                "up": self.up,
+                "down": self.down,
+            }, -1)
+
+    # ==================== NAVIGACIJA SA PRESKAKANJEM SEPARATORA ====================
+    def _is_separator(self, idx):
+        """Proveri da li je item na datom indeksu separator."""
+        curr = self["list"].list
+        if 0 <= idx < len(curr):
+            return curr[idx][1].get("separator", False)
+        return False
+
+    def _move_to_first_plugin(self):
+        """Pomeri selekciju na prvi pravi plugin (preskoči separatore na početku)."""
+        curr = self["list"].list
+        for i, item in enumerate(curr):
+            if not item[1].get("separator", False):
+                self["list"].moveToIndex(i)
+                return
+
+    def up(self):
+        """Pomeri selekciju gore, preskoči separatore."""
+        curr_idx = self["list"].getSelectionIndex()
+        if curr_idx <= 0:
+            return
+        new_idx = curr_idx - 1
+        while new_idx >= 0 and self._is_separator(new_idx):
+            new_idx -= 1
+        if new_idx >= 0:
+            self["list"].moveToIndex(new_idx)
+
+    def down(self):
+        """Pomeri selekciju dole, preskoči separatore."""
+        curr_idx = self["list"].getSelectionIndex()
+        curr = self["list"].list
+        if curr_idx >= len(curr) - 1:
+            return
+        new_idx = curr_idx + 1
+        while new_idx < len(curr) and self._is_separator(new_idx):
+            new_idx += 1
+        if new_idx < len(curr):
+            self["list"].moveToIndex(new_idx)
+
+    # ==================== SYNC SA SISTEMOM ====================
     def sync_with_system(self):
-        """Tiha provera i ažuriranje JSON fajla prema stanju na disku."""
         if not IMPORT_OK: return
 
         from installer import check_system_for_plugins
         installed_on_disk = check_system_for_plugins(PLUGINS_DB)
 
-        # Uzmi trenutne podatke iz JSON-a
         current_plugins = self.status_data.get("plugins", {})
 
-        # Ažuriraj status za svaki plugin iz baze
         for p in PLUGINS_DB:
             name = p.get("name")
             if name in installed_on_disk:
-                # Ako je nađen na disku, uvek označi kao uspeh
                 current_plugins[name] = {"success": True, "phase": p.get("phase")}
             else:
-                # Ako ga nema na disku, a u JSON-u piše da je instaliran, ispravi to
                 if name in current_plugins and current_plugins[name].get("success"):
                     current_plugins[name]["success"] = False
 
         self.status_data["plugins"] = current_plugins
 
-        # Osveži statuse faza (1, 2, 3, 4, 5, 6)
         for phase in [1, 2, 3, 4, 5, 6]:
             phase_plugins = [p for p in PLUGINS_DB if p.get("phase") == phase]
             self.status_data[f"phase{phase}_done"] = all(
@@ -320,169 +362,148 @@ class CiefpEasySetup(Screen):
         save_status(self.status_data)
 
     def show_config_menu(self):
-        # Dodajemo "About" u listu koja se prikazuje korisniku
         options = [
             (_("Select Language"), "lang"),
-            (_("Update plugin"), "update"),  # <-- DODAJ OVO
-            (_("About"), "about")  # Ovo je ključna reč koju šaljemo callback-u
+            (_("Update plugin"), "update"),
+            (_("About"), "about")
         ]
         self.session.openWithCallback(self.config_menu_callback, ChoiceBox, title=_("Settings"), list=options)
 
     def config_menu_callback(self, choice):
         if choice:
             if choice[1] == "lang":
-                # Tvoj postojeći kod za promenu jezika
                 langs = [("English", "en"), ("Srpski", "sr")]
                 self.session.openWithCallback(self.set_language, ChoiceBox, title=_("Select Language"), list=langs)
-
-            elif choice[1] == "update":  # <-- DODAJ OVAJ DEO
+            elif choice[1] == "update":
                 self.update_plugin()
-
             elif choice[1] == "about":
                 self.show_about_info()
 
     def show_about_info(self):
-        # Naslov i osnovni info (PY3)
         about_text = f"CiefpEasySetup v{PLUGIN_VERSION}\n"
         about_text += "Multi-Image One-Click Installer (PY3)\n\n"
-
-        # Sekcija za vreme (Prevedena preko tvoje _(txt) funkcije)
         about_text += "--- " + _("Installation Time Estimates") + " ---\n"
         about_text += "• OpenATV, Pure2, OpenSPA: ~10-15 min eMMC,~35-40 min OMB\n"
         about_text += "• OpenPLi (Scarthgap): ~10-15 min eMMC,~50-60 min OMB\n\n"
-
-        # Napomene
         about_text += _("Note: Speed depends on receiver CPU") + "\n"
         about_text += _("and internet/media speed (Flash/USB).") + "\n\n"
-
         about_text += "Author: ciefp\n"
         about_text += _("Special thanks to the community.") + "\n"
         about_text += _("Special thanks to Gemini A.I. for support.")
-
-        # MessageBox prikazuje tekst na ekranu
         self.session.open(MessageBox, about_text, MessageBox.TYPE_INFO)
 
     def set_language(self, lang):
         if lang:
             global CURRENT_LANG
             CURRENT_LANG = lang[1]
-
-            # Snimanje izbora u JSON da bi se pamtilo nakon restarta
             self.status_data["settings_lang"] = CURRENT_LANG
             save_status(self.status_data)
-
-            # Osvežavanje UI elemenata
             self["key_red"].setText(_("Exit"))
             self["key_green"].setText(_("Start Installation"))
             self["key_yellow"].setText(_("Check Status"))
             self["key_blue"].setText(_("Reboot Options"))
             self.setTitle("CiefpEasySetup - " + _("Settings"))
-
-            # Opciona potvrda
             self.session.open(MessageBox, _("Language changed."), MessageBox.TYPE_INFO, timeout=3)
 
+    # ==================== BUILD LIST SA SEPARATORIMA ====================
     def build_list(self):
         if not self.IMPORT_OK:
             self["list"].setList([])
             return
 
-        # Koristimo PLUGINS_DB koji je uvezen na vrhu fajla
         all_plugins = PLUGINS_DB
         plugins_status = self.status_data.get("plugins", {})
         list_data = []
 
-        # Osiguravamo da temp_selection postoji
         if not hasattr(self, "temp_selection"):
             self.temp_selection = {}
 
+        # Grupisanje po fazama
+        phases = {}
         for p in all_plugins:
-            name = p.get("name", "Unknown")
-            status = plugins_status.get(name, {})
-            is_installed = status.get("success", False)
+            ph = p.get("phase", 0)
+            phases.setdefault(ph, []).append(p)
 
-            plugin_info = p.copy()
+        # Zapamti trenutnu selekciju (indeks) pre rebuild-a
+        try:
+            old_idx = self["list"].getSelectionIndex()
+            old_name = None
+            if 0 <= old_idx < len(self["list"].list):
+                old_name = self["list"].list[old_idx][1].get("name")
+        except:
+            old_name = None
 
-            if is_installed:
-                display_name = f"✓ {name}"
-                plugin_info["selected"] = False
-            else:
-                # Proveravamo da li je korisnik već označio ovaj plugin u ovoj sesiji
-                was_selected = self.temp_selection.get(name, False)
-                prefix = "[X] " if was_selected else "[  ] "
-                display_name = f"{prefix}{name}"
-                plugin_info["selected"] = was_selected
+        for ph in sorted(phases.keys()):
+            # Dodaj separator (naslov faze)
+            title = PHASE_TITLES.get(ph, f"═══ FAZA {ph} ═══")
+            list_data.append((title, {"separator": True, "name": f"__sep_{ph}__"}))
 
-            list_data.append((display_name, plugin_info))
+            for p in phases[ph]:
+                name = p.get("name", "Unknown")
+                status = plugins_status.get(name, {})
+                is_installed = status.get("success", False)
+
+                plugin_info = p.copy()
+                plugin_info["separator"] = False
+
+                if is_installed:
+                    display_name = f"  ✓ {name}"
+                    plugin_info["selected"] = False
+                else:
+                    was_selected = self.temp_selection.get(name, False)
+                    prefix = "  [X] " if was_selected else "  [  ] "
+                    display_name = f"{prefix}{name}"
+                    plugin_info["selected"] = was_selected
+
+                list_data.append((display_name, plugin_info))
 
         self["list"].setList(list_data)
 
+        # Vrati selekciju na isti plugin ako postoji
+        if old_name:
+            for i, item in enumerate(list_data):
+                if item[1].get("name") == old_name:
+                    self["list"].moveToIndex(i)
+                    break
+            else:
+                self._move_to_first_plugin()
+        else:
+            self._move_to_first_plugin()
+
     def update_plugin(self):
-        # Pitaj korisnika za potvrdu
         msg = _("Do you want to update CiefpEasySetup plugin?") + "\n\n" + \
               _("The plugin will be updated to the latest version.")
-
-        self.session.openWithCallback(
-            self.confirm_update,
-            MessageBox,
-            msg,
-            MessageBox.TYPE_YESNO
-        )
+        self.session.openWithCallback(self.confirm_update, MessageBox, msg, MessageBox.TYPE_YESNO)
 
     def confirm_update(self, answer):
         if answer:
-            # Sakrij glavni prozor tokom update-a
             self.hide()
-
-            # Otvori progress prozor
             if not self.mini_screen:
                 self.mini_screen = self.session.open(CiefpInstallProgress)
-
             self.mini_screen.start_timer()
-            self.mini_screen.update_info(
-                _("Updating plugin..."),
-                _("CiefpEasySetup update in progress")
-            )
-
-            # Pokreni update komandu u pozadini sa timerom
+            self.mini_screen.update_info(_("Updating plugin..."), _("CiefpEasySetup update in progress"))
             self.update_timer = eTimer()
             self.update_timer.callback.append(self.run_update_command)
             self.update_timer.start(500, True)
 
     def run_update_command(self):
-        # Komanda za update
         update_cmd = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEasySetup/main/installer.sh -O - | /bin/sh"
-
-        # Izvrši komandu
         success = run_command(update_cmd, skip_reboot=True)
-
-        # Zaustavi timer i zatvori progress prozor
         if self.mini_screen:
             self.mini_screen.stop_timer()
             self.mini_screen.close()
             self.mini_screen = None
-
-        # Sačuvaj rezultat za kasnije
         self.update_success = success
-
-        # PRVO prikaži glavni prozor
         self.show()
-
-        # Koristi timer da otvori MessageBox nakon što se UI stabilizuje
         self.message_timer = eTimer()
         self.message_timer.callback.append(self.show_update_result)
         self.message_timer.start(500, True)
 
     def show_update_result(self):
-        # Prikaži poruku o rezultatu
         if self.update_success:
             msg = _("Plugin updated successfully!") + "\n\n" + \
                   _("Please restart Enigma2 for changes to take effect.")
-            self.session.openWithCallback(
-                self.restart_enigma2_after_update,
-                MessageBox,
-                msg,
-                MessageBox.TYPE_YESNO
-            )
+            self.session.openWithCallback(self.restart_enigma2_after_update, MessageBox, msg, MessageBox.TYPE_YESNO)
         else:
             msg = _("Update failed!") + "\n\n" + \
                   _("Please check your internet connection and try again.")
@@ -491,7 +512,6 @@ class CiefpEasySetup(Screen):
     def restart_enigma2_after_update(self, answer):
         if answer:
             os.system("killall -9 enigma2")
-        # Ako korisnik odabere "No", samo ostaje na glavnom ekranu
 
     def update_status_text(self):
         self.status_data = load_status()
@@ -505,10 +525,8 @@ class CiefpEasySetup(Screen):
                 return _("DONE")
             return _("Not done")
 
-        # Samo faze 1,2,3 u statusu (Phase 99 i 100 se ne prikazuju)
         txt = f"P1:{get_phase_status(1)} P2:{get_phase_status(2)} P3:{get_phase_status(3)} "
         txt += f"P4:{get_phase_status(4)} P5:{get_phase_status(5)} P6:{get_phase_status(6)}"
-
         self["status"].setText(txt)
 
     def install_single_plugin_confirmed(self, answer):
@@ -516,7 +534,9 @@ class CiefpEasySetup(Screen):
             idx = self["list"].getCurrentIndex()
             plugin = self["list"].list[idx][1]
 
-            # Pokreni mini skin samo za ovaj jedan
+            if plugin.get("separator", False):
+                return
+
             if not self.mini_screen:
                 self.hide()
                 self.mini_screen = self.session.open(CiefpInstallProgress)
@@ -524,18 +544,16 @@ class CiefpEasySetup(Screen):
 
             self.mini_screen.update_info("Ručna instalacija...", plugin.get("name"))
 
-            # Izvrši komandu (bez skip_reboot jer je ručno)
             success = run_command(plugin.get("command"), skip_reboot=False)
 
-            # Sačuvaj status
             self.status_data.setdefault("plugins", {})[plugin.get("name")] = {
                 "success": success,
                 "phase": plugin.get("phase")
             }
             save_status(self.status_data)
 
-            # Zatvori mini i osveži listu
             if self.mini_screen:
+                self.mini_screen.stop_timer()
                 self.mini_screen.close()
                 self.mini_screen = None
             self.show()
@@ -543,11 +561,11 @@ class CiefpEasySetup(Screen):
 
     # ====================== ZELENA - INSTALACIJA ======================
     def show_install_menu(self):
-        # Proveravamo šta je korisnik selektovao sa [X]
-        manual_selection = [item[1] for item in self["list"].list if item[1].get("selected", False)]
+        # Filtriraj separatore iz selekcije
+        manual_selection = [item[1] for item in self["list"].list
+                            if not item[1].get("separator", False) and item[1].get("selected", False)]
 
         if manual_selection:
-            # Ako ima [X] oznaka, odmah nudimo potvrdu za njih
             self.session.openWithCallback(
                 self.start_manual_confirmed,
                 MessageBox,
@@ -555,7 +573,6 @@ class CiefpEasySetup(Screen):
                 MessageBox.TYPE_YESNO
             )
         else:
-            # Ako nema [X], otvori standardni meni za faze
             options = [
                 (_("Install ALL (Phase 1-5)"), "all"),
                 (_("Only Phase 1 (System)"), 1),
@@ -578,23 +595,21 @@ class CiefpEasySetup(Screen):
         if not choice:
             return
 
-        # ChoiceBox vraća tuple ("tekst", value)
         if isinstance(choice, tuple):
             choice = choice[1]
 
         all_plugins = PLUGINS_DB
 
-        # 🔥 mapa duplikata (phase 3 ↔ phase 4)
         self.phase3_names = set(p["name"] for p in all_plugins if p.get("phase") == 3)
         self.phase4_names = set(p["name"] for p in all_plugins if p.get("phase") == 4)
-
         self.duplicate_plugins = self.phase3_names.intersection(self.phase4_names)
+
         plugins_status = self.status_data.get("plugins", {})
         selected_list = []
 
-        # 1. Odabir osnovne liste na osnovu izbora korisnika
         if choice == "manual":
-            selected_list = [item[1] for item in self["list"].list if item[1].get("selected", False)]
+            selected_list = [item[1] for item in self["list"].list
+                             if not item[1].get("separator", False) and item[1].get("selected", False)]
             self.current_phase_label = _("Manual Selection")
 
         elif choice == "all":
@@ -603,15 +618,10 @@ class CiefpEasySetup(Screen):
                 name = p.get("name")
                 phase = p.get("phase")
 
-                # 🔥 PRESKOČI Phase 100 (Experimental) - NE ulazi u Install ALL
                 if phase == 100:
                     continue
-
-                # 🔥 PRESKOČI Phase 6 (Reserve) - NE ulazi u Install ALL
                 if phase == 6:
                     continue
-
-                # 🔥 SKIP faza 4 ako je duplikat (biće fallback)
                 if phase == 4 and name in self.duplicate_plugins:
                     continue
 
@@ -619,7 +629,6 @@ class CiefpEasySetup(Screen):
             self.current_phase_label = _("Install ALL (Phase 1-5)")
 
         elif isinstance(choice, int):
-            # Pokriva sve pojedinačne faze: 1, 2, 3, 4, 5, 6, 100
             selected_list = [p for p in all_plugins if p.get("phase") == choice]
             self.current_phase_label = f"{_('Phase')} {choice}"
 
@@ -631,7 +640,6 @@ class CiefpEasySetup(Screen):
             self.session.open(MessageBox, _("No plugins selected!"), MessageBox.TYPE_INFO)
             return
 
-        # 2. Detekcija imidža i filtriranje liste
         pli_detected = is_openpli()
         atv_detected = is_openatv()
         vu_detected = is_vuplus()
@@ -640,24 +648,18 @@ class CiefpEasySetup(Screen):
         for p in selected_list:
             name = p.get("name")
 
-            # Preskoči secret-feed ako NIJE OpenATV
             if name == "secret-feed" and not atv_detected:
                 continue
 
-            # Ograničenje za chromium (samo Vu+ uređaji)
             if name == "chromium" and not vu_detected:
                 continue
 
-            # Dinamička promena komande za Abertis ako je detektovan OpenPLi
             if name == "CiefpSettingsT2miAbertis":
                 if pli_detected:
-                    p[
-                        "command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertisOpenPLi/main/installer.sh -O - | /bin/sh"
+                    p["command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertisOpenPLi/main/installer.sh -O - | /bin/sh"
                 else:
-                    p[
-                        "command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertis/main/installer.sh -O - | /bin/sh"
+                    p["command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertis/main/installer.sh -O - | /bin/sh"
 
-            # Provera da li je već instaliran
             status = plugins_status.get(name)
             if not status or not status.get("success", False):
                 self.plugins_to_install.append(p)
@@ -666,13 +668,8 @@ class CiefpEasySetup(Screen):
             self.session.open(MessageBox, _("All selected plugins are already installed!"), MessageBox.TYPE_INFO)
             return
 
-        # 3. Reset stanja i pokretanje mini skina
         self.current_plugin_index = 0
-        # SORTIRANJE PO FAZAMA (KLJUČNO!)
-        self.plugins_to_install = sorted(
-            self.plugins_to_install,
-            key=lambda x: x.get("phase", 0)
-        )
+        self.plugins_to_install = sorted(self.plugins_to_install, key=lambda x: x.get("phase", 0))
         self.success_plugins = []
         self.failed_plugins = []
         self.temp_selection = {}
@@ -681,31 +678,25 @@ class CiefpEasySetup(Screen):
         if not self.mini_screen:
             self.mini_screen = self.session.open(CiefpInstallProgress)
 
-        # 🔥 POKRENI ŠTOPERICU PRE NEGO ŠTO POČNE INSTALACIJA
         self.mini_screen.start_timer()
-
         self.start_actual_installation()
 
     def start_actual_installation(self):
-        # 🔥 POKRENI ŠTOPERICU AKO VEĆ NIJE POKRENUTA
         if self.mini_screen:
             self.mini_screen.start_timer()
 
-        # Malo zakašnjenje da se UI osveži pre teškog posla
         self.plugin_timer = eTimer()
         self.plugin_timer.callback.append(self.install_next_plugin)
         self.plugin_timer.start(500, True)
 
     def on_install_finished(self, *args):
-        # Ova funkcija vraća fokus na glavni prozor kada se progres završi
         self.show()
         self.build_list()
         self.update_status_text()
 
     def start_installation_process(self):
-        # 🔥 POKRENI ŠTOPERICU NA MINI SKINU
         if self.mini_screen:
-            self.mini_screen.start_timer()  # <-- DODAJ OVO
+            self.mini_screen.start_timer()
 
         if not self.plugins_to_install:
             self.show()
@@ -713,7 +704,7 @@ class CiefpEasySetup(Screen):
 
         if not self.mini_screen:
             self.mini_screen = self.session.open(CiefpInstallProgress)
-            self.mini_screen.start_timer()  # <-- I OVDE DODAJ
+            self.mini_screen.start_timer()
 
         self.mini_screen.update_info(_("Installation in progress..."), _("Preparing..."))
 
@@ -722,42 +713,32 @@ class CiefpEasySetup(Screen):
         self.plugin_timer.start(500, True)
 
     def install_next_plugin(self):
-        # KRAJ LISTE → idi na summary
         if self.current_plugin_index >= len(self.plugins_to_install):
             return self.finish_installation()
 
         plugin = self.plugins_to_install[self.current_plugin_index]
         name = plugin.get("name", "Unknown")
 
-        # Javi progres baru
         if self.mini_screen:
             status = f"{_('Installation in progress...')}"
             details = f"[{self.current_plugin_index + 1}/{len(self.plugins_to_install)}] {name}"
             self.mini_screen.update_info(status, details)
 
-        # IZVRŠI INSTALACIJU
         success = run_command(plugin.get("command"), skip_reboot=True)
 
         name = plugin.get("name")
         phase = plugin.get("phase")
 
-        # 🔥 fallback SAMO za duplikate (faza 3 → faza 4)
         if not success and phase == 3 and name in getattr(self, "duplicate_plugins", set()):
             fallback = next(
                 (p for p in PLUGINS_DB if p.get("name") == name and p.get("phase") == 4),
                 None
             )
-
             if fallback:
                 if self.mini_screen:
-                    self.mini_screen.update_info(
-                        _("Fallback install..."),
-                        name
-                    )
-
+                    self.mini_screen.update_info(_("Fallback install..."), name)
                 success = run_command(fallback.get("command"), skip_reboot=True)
 
-        # Sačuvaj rezultat
         if success:
             self.success_plugins.append(name)
         else:
@@ -766,7 +747,6 @@ class CiefpEasySetup(Screen):
         self.status_data.setdefault("plugins", {})[name] = {"success": success, "phase": plugin.get("phase")}
         save_status(self.status_data)
 
-        # Sledeći!
         self.current_plugin_index += 1
         self.plugin_timer.start(500, True)
 
@@ -785,9 +765,8 @@ class CiefpEasySetup(Screen):
     def show_install_summary(self):
         total = len(self.success_plugins) + len(self.failed_plugins)
 
-        # ================== ✅ UPDATE FAZA STATUS ==================
         all_plugins = PLUGINS_DB
-        self.status_data = load_status()  # 🔥 KLJUČNO
+        self.status_data = load_status()
         plugins_status = self.status_data.get("plugins", {})
 
         def is_phase_done(phase_num):
@@ -799,14 +778,11 @@ class CiefpEasySetup(Screen):
                     return False
             return True
 
-        # Postavi status za sve faze (bitno!)
         for phase in [1, 2, 3, 4, 5, 6]:
             self.status_data[f"phase{phase}_done"] = is_phase_done(phase)
 
         save_status(self.status_data)
-        # ==========================================================
 
-        # Sastavljanje poruke
         msg = f"{_('Installation finished!')}\n\n"
         msg += f"{_('✓ Successful')}: {len(self.success_plugins)} / {total}\n"
         msg += f"{_('✗ Failed')}: {len(self.failed_plugins)}\n\n"
@@ -827,7 +803,6 @@ class CiefpEasySetup(Screen):
             msg += _("All plugins installed successfully!")
             self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=15)
 
-        # ✅ Osveži UI u oba slučaja
         self.build_list()
         self.update_status_text()
 
@@ -835,10 +810,7 @@ class CiefpEasySetup(Screen):
         if answer and self.failed_plugins:
             retry_list = [p for p in PLUGINS_DB if p.get("name") in self.failed_plugins]
 
-            self.plugins_to_install = sorted(
-                retry_list,
-                key=lambda x: x.get("phase", 0)
-            )
+            self.plugins_to_install = sorted(retry_list, key=lambda x: x.get("phase", 0))
 
             self.current_plugin_index = 0
             self.success_plugins = []
@@ -858,25 +830,21 @@ class CiefpEasySetup(Screen):
     def check_status(self):
         self["status"].setText("Skeniram sistem, molimo sačekajte...")
 
-        # 1. Pozovi skeniranje iz installer.py
         from installer import check_system_for_plugins
         installed_list = check_system_for_plugins(PLUGINS_DB)
 
-        # 2. Osveži status_data na osnovu pronađenog stanja
         new_plugins_status = {}
         for p in PLUGINS_DB:
             p_name = p.get("name")
             if p_name in installed_list:
                 new_plugins_status[p_name] = {"success": True, "phase": p.get("phase")}
             else:
-                # Zadrži stari neuspeh ako je postojao, ili ostavi prazno
                 old_status = self.status_data.get("plugins", {}).get(p_name, {})
                 if old_status.get("success") is False:
                     new_plugins_status[p_name] = old_status
 
         self.status_data["plugins"] = new_plugins_status
 
-        # 3. Ponovo izračunaj da li su faze gotove
         for phase in [1, 2, 3, 4, 5, 6]:
             phase_plugins = [p for p in PLUGINS_DB if p.get("phase") == phase]
             is_done = True
@@ -886,12 +854,10 @@ class CiefpEasySetup(Screen):
                     break
             self.status_data[f"phase{phase}_done"] = is_done
 
-        # 4. Sačuvaj u JSON i osveži UI
         save_status(self.status_data)
         self.build_list()
         self.update_status_text()
 
-        # 5. Prikaži MessageBox (tvoj postojeći kod za prikaz)
         msg = f"=== {_('Current Status')} ===\n\n"
 
         def get_done_text(val):
@@ -909,8 +875,6 @@ class CiefpEasySetup(Screen):
 
     # ====================== PLAVA - REBOOT ======================
     def show_reboot_menu(self):
-        from Screens.ChoiceBox import ChoiceBox
-        # Koristimo _() za svaku opciju i naslov
         options = [
             (_("Reboot Box"), "reboot"),
             (_("Restart Enigma2 (GUI)"), "restart"),
@@ -920,13 +884,13 @@ class CiefpEasySetup(Screen):
 
     def do_reboot(self, choice):
         if choice:
-            action = choice[1]  # ChoiceBox vraća tuple (ime, id)
+            action = choice[1]
             if action == "reboot":
                 os.system("reboot")
             elif action == "restart":
                 os.system("killall -9 enigma2")
 
-    # ==========================================================
+    # ====================== OK ======================
     def ok(self):
         idx = self["list"].getSelectionIndex()
 
@@ -935,25 +899,30 @@ class CiefpEasySetup(Screen):
 
         curr_list = self["list"].list
         display_name, plugin_data = curr_list[idx]
+
+        # Ako je separator → ništa
+        if plugin_data.get("separator", False):
+            return
+
         name = plugin_data.get("name")
 
-        # Ako je već instaliran → ništa
         if "✓" in display_name:
             return
 
-        # Ako postoji selekcija (manual mode)
         if hasattr(self, "temp_selection"):
             is_selected = not plugin_data.get("selected", False)
             plugin_data["selected"] = is_selected
             self.temp_selection[name] = is_selected
 
-            prefix = "[X] " if is_selected else "[  ] "
-            curr_list[idx] = (f"{prefix}{name}", plugin_data)
+            if is_selected:
+                new_display = f"  [X] {name}"
+            else:
+                new_display = f"  [  ] {name}"
 
+            curr_list[idx] = (new_display, plugin_data)
             self["list"].setList(curr_list)
             self["list"].moveToIndex(idx)
         else:
-            # Ručna instalacija jednog plugina
             self.session.openWithCallback(
                 self.install_single_plugin_confirmed,
                 MessageBox,
