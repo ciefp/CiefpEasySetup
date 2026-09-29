@@ -18,7 +18,7 @@ PLUGIN_NAME = "CiefpEasySetup"
 
 # Nazivi faza za separatore
 PHASE_TITLES = {
-    0: "═══ FAZA 0 - Priprema (opkg update) ═══",
+    0: "═══ FAZA 0 - Priprema (update + feed + oscam) ═══",
     1: "═══ FAZA 1 - System ═══",
     2: "═══ FAZA 2 - Ciefp Plugins ═══",
     3: "═══ FAZA 3 - Feed Plugins ═══",
@@ -61,7 +61,6 @@ def _(txt):
             "en": "System is successfully synchronized with the list.",
             "sr": "Sistem je uspešno sinhronizovan sa listom."
         },
-        "In progress": {"en": "In progress", "sr": "U toku"},
         "Installation finished!": {"en": "Installation finished!", "sr": "Instalacija završena!"},
         "✓ Successful": {"en": "✓ Successful", "sr": "✓ Uspešno"},
         "✗ Failed": {"en": "✗ Failed", "sr": "✗ Neuspešno"},
@@ -92,6 +91,8 @@ def _(txt):
         "Priprema završena": {"en": "Preparation finished", "sr": "Priprema završena"},
         "Pokretanje instalacije...": {"en": "Starting installation...", "sr": "Pokretanje instalacije..."},
         "Restart skipped (batch installation)": {"en": "Restart skipped (batch installation)", "sr": "Restart preskočen (batch instalacija)"},
+        "Phase 0 finished.": {"en": "Phase 0 finished.", "sr": "Faza 0 završena."},
+        "Manual installation...": {"en": "Manual installation...", "sr": "Ručna instalacija..."},
     }
     if txt in translations:
         return translations[txt].get(CURRENT_LANG, txt)
@@ -118,6 +119,19 @@ def is_openpli():
             with open("/etc/issue", "r") as f:
                 content = f.read().lower()
                 if "openpli" in content:
+                    return True
+    except:
+        pass
+    return False
+
+
+def is_openatv_only():
+    """Proverava da li je OpenATV (samo OpenATV, ne OpenBH ili drugi OEA)."""
+    try:
+        if os.path.exists("/etc/issue"):
+            with open("/etc/issue", "r") as f:
+                content = f.read().lower()
+                if "openatv" in content:
                     return True
     except:
         pass
@@ -173,6 +187,7 @@ class CiefpInstallProgress(Screen):
         self.elapsed_time = 0
         self.stopwatch_timer = eTimer()
         self.stopwatch_timer.callback.append(self.update_stopwatch)
+        self.timer_active = False
 
     def update_stopwatch(self):
         self.elapsed_time += 1
@@ -185,9 +200,11 @@ class CiefpInstallProgress(Screen):
         self.elapsed_time = 0
         self["timer_label"].setText(_("Time: 00:00"))
         self.stopwatch_timer.start(1000)
+        self.timer_active = True
 
     def stop_timer(self):
         self.stopwatch_timer.stop()
+        self.timer_active = False
 
     def update_info(self, status, detail):
         self["status"].setText(status)
@@ -228,14 +245,15 @@ class CiefpEasySetup(Screen):
         self.sync_with_system()
         global CURRENT_LANG
         CURRENT_LANG = self.status_data.get("settings_lang", "sr")
-        self.success_plugins = set()
-        self.failed_plugins = set()
+        self.success_plugins = []
+        self.failed_plugins = []
         self.plugins_to_install = []
         self.current_plugin_index = 0
         self.update_success = False
         self.message_timer = None
         self.mini_screen = None
         self.phase0_plugins = []
+        self.phase0_callback = None
         self.build_list()
         self.update_status_text()
         self._move_to_first_plugin()
@@ -289,6 +307,29 @@ class CiefpEasySetup(Screen):
         if new_idx < len(curr):
             self["list"].moveToIndex(new_idx)
 
+    # ==================== MINI SCREEN HELPER ====================
+    def ensure_mini_screen(self, start_timer=True):
+        """Osigurava da je mini screen otvoren. Opciono pokreće timer."""
+        self.hide()
+        if not self.mini_screen:
+            self.mini_screen = self.session.open(CiefpInstallProgress)
+        if start_timer:
+            self.mini_screen.start_timer()
+        return self.mini_screen
+
+    def close_mini_screen(self):
+        """Zatvara mini screen ako postoji."""
+        if self.mini_screen:
+            try:
+                self.mini_screen.stop_timer()
+            except:
+                pass
+            try:
+                self.mini_screen.close()
+            except:
+                pass
+            self.mini_screen = None
+
     # ==================== SYNC ====================
     def sync_with_system(self):
         if not IMPORT_OK: return
@@ -299,7 +340,6 @@ class CiefpEasySetup(Screen):
         for p in PLUGINS_DB:
             name = p.get("name")
             phase = p.get("phase")
-            # Faza 0 se ne čuva u JSON
             if phase == 0:
                 continue
             if name in installed_on_disk:
@@ -310,7 +350,6 @@ class CiefpEasySetup(Screen):
 
         self.status_data["plugins"] = current_plugins
 
-        # Faze 1-6 (bez faze 0)
         for phase in [1, 2, 3, 4, 5, 6]:
             phase_plugins = [p for p in PLUGINS_DB if p.get("phase") == phase]
             self.status_data[f"phase{phase}_done"] = all(
@@ -399,7 +438,6 @@ class CiefpEasySetup(Screen):
                 plugin_info = p.copy()
                 plugin_info["separator"] = False
 
-                # Faza 0 - uvek prikaži kao [  ] (nema status)
                 if ph == 0:
                     display_name = f"  [  ] {name}"
                     plugin_info["selected"] = False
@@ -432,10 +470,7 @@ class CiefpEasySetup(Screen):
 
     def confirm_update(self, answer):
         if answer:
-            self.hide()
-            if not self.mini_screen:
-                self.mini_screen = self.session.open(CiefpInstallProgress)
-            self.mini_screen.start_timer()
+            self.ensure_mini_screen(start_timer=True)
             self.mini_screen.update_info(_("Updating plugin..."), _("CiefpEasySetup update in progress"))
             self.update_timer = eTimer()
             self.update_timer.callback.append(self.run_update_command)
@@ -444,10 +479,7 @@ class CiefpEasySetup(Screen):
     def run_update_command(self):
         update_cmd = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEasySetup/main/installer.sh -O - | /bin/sh"
         success = run_command(update_cmd, skip_reboot=True)
-        if self.mini_screen:
-            self.mini_screen.stop_timer()
-            self.mini_screen.close()
-            self.mini_screen = None
+        self.close_mini_screen()
         self.update_success = success
         self.show()
         self.message_timer = eTimer()
@@ -478,14 +510,13 @@ class CiefpEasySetup(Screen):
                 return _("DONE")
             return _("Not done")
 
-        # Faze 1-6 (bez faze 0)
         txt = f"P1:{get_phase_status(1)} P2:{get_phase_status(2)} P3:{get_phase_status(3)} "
         txt += f"P4:{get_phase_status(4)} P5:{get_phase_status(5)} P6:{get_phase_status(6)}"
         self["status"].setText(txt)
 
     # ==================== FAZA 0 ====================
     def run_phase_zero(self, callback):
-        """Izvrši fazu 0 (opkg update) pre glavne instalacije.
+        """Izvrši fazu 0 (opkg update + secret-feed + oscam) pre glavne instalacije.
         callback - funkcija koja se poziva kada faza 0 završi."""
         phase0_plugins = [p for p in PLUGINS_DB if p.get("phase") == 0]
 
@@ -496,7 +527,8 @@ class CiefpEasySetup(Screen):
         self.phase0_plugins = phase0_plugins
         self.phase0_callback = callback
 
-        # Prikaži mini screen ali NE pokreći timer
+        # Otvori mini screen ali NE pokreći timer
+        self.hide()
         if not self.mini_screen:
             self.mini_screen = self.session.open(CiefpInstallProgress)
 
@@ -516,7 +548,6 @@ class CiefpEasySetup(Screen):
                     _("Priprema završena"),
                     _("Pokretanje instalacije...")
                 )
-            # Pozovi callback (pokreće fazu 1-5 ili samo završi)
             cb = getattr(self, "phase0_callback", None)
             if cb:
                 self.phase0_callback()
@@ -531,14 +562,13 @@ class CiefpEasySetup(Screen):
                 f"[{idx + 1}/{len(self.phase0_plugins)}] {name}"
             )
 
-        # Izvrši komandu (bez čuvanja statusa)
         run_command(plugin.get("command"), skip_reboot=True)
 
         self.phase0_timer = eTimer()
         self.phase0_timer.callback.append(lambda: self._run_phase0_step(idx + 1))
         self.phase0_timer.start(500, True)
 
-    # ==================== INSTALACIJA ====================
+    # ==================== INSTALACIONI MENI ====================
     def show_install_menu(self):
         manual_selection = [item[1] for item in self["list"].list
                             if not item[1].get("separator", False) and item[1].get("selected", False)]
@@ -547,8 +577,11 @@ class CiefpEasySetup(Screen):
             self.session.openWithCallback(self.start_manual_confirmed, MessageBox,
                                           _("Do you want to install selected plugins?"), MessageBox.TYPE_YESNO)
         else:
+            atv_only = is_openatv_only()
+            all_label = _("Install ALL (Phase 0-5)") if atv_only else _("Install ALL (Phase 1-5)")
+
             options = [
-                (_("Install ALL (Phase 0-5)"), "all"),
+                (all_label, "all"),
                 (_("Only Phase 0 (Prepare)"), 0),
                 (_("Only Phase 1 (System)"), 1),
                 (_("Only Phase 2 (Ciefp plugins)"), 2),
@@ -573,6 +606,7 @@ class CiefpEasySetup(Screen):
             choice = choice[1]
 
         all_plugins = PLUGINS_DB
+        atv_only = is_openatv_only()
 
         self.phase3_names = set(p["name"] for p in all_plugins if p.get("phase") == 3)
         self.phase4_names = set(p["name"] for p in all_plugins if p.get("phase") == 4)
@@ -591,6 +625,11 @@ class CiefpEasySetup(Screen):
             for p in all_plugins:
                 name = p.get("name")
                 phase = p.get("phase")
+
+                # 🔥 Faza 0 - samo na OpenATV
+                if phase == 0 and not atv_only:
+                    continue
+
                 if phase == 100:
                     continue
                 if phase == 6:
@@ -598,7 +637,7 @@ class CiefpEasySetup(Screen):
                 if phase == 4 and name in self.duplicate_plugins:
                     continue
                 selected_list.append(p)
-            self.current_phase_label = _("Install ALL (Phase 0-5)")
+            self.current_phase_label = _("Install ALL (Phase 0-5)") if atv_only else _("Install ALL (Phase 1-5)")
 
         elif isinstance(choice, int):
             selected_list = [p for p in all_plugins if p.get("phase") == choice]
@@ -622,39 +661,37 @@ class CiefpEasySetup(Screen):
         if choice == 0:
             self.only_phase0 = True
             self.plugins_to_install = [p for p in selected_list if p.get("phase") == 0]
-        else:
-            for p in selected_list:
-                name = p.get("name")
-                phase = p.get("phase")
+            # 🔥 Prikaži mini screen za fazu 0
+            self.ensure_mini_screen(start_timer=False)
+            self.run_phase_zero(self.after_phase_zero_only)
+            return
 
-                # Faza 0 - uvek se izvršava
-                if phase == 0:
-                    self.plugins_to_install.append(p)
-                    continue
+        for p in selected_list:
+            name = p.get("name")
+            phase = p.get("phase")
 
-                # Preskoči OEA-specifične plugine na ne-OEA imidžima
-                if name == "secret-feed" and not oea_detected:
-                    continue
-                if name in ["StreamlinkWrapper", "ytdlpwrapper", "OAWeather", "WebkitHbbTV"] and not oea_detected:
-                    continue
+            # Preskoči OEA-specifične plugine na ne-OEA imidžima
+            if name == "secret-feed" and not oea_detected:
+                continue
+            if name in ["StreamlinkWrapper", "ytdlpwrapper", "OAWeather", "WebkitHbbTV"] and not oea_detected:
+                continue
+            if name == "chromium" and not vu_detected:
+                continue
 
-                if name == "chromium" and not vu_detected:
-                    continue
+            if name == "CiefpSettingsT2miAbertis":
+                if pli_detected:
+                    p["command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertisOpenPLi/main/installer.sh -O - | /bin/sh"
+                else:
+                    p["command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertis/main/installer.sh -O - | /bin/sh"
 
-                if name == "CiefpSettingsT2miAbertis":
-                    if pli_detected:
-                        p["command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertisOpenPLi/main/installer.sh -O - | /bin/sh"
-                    else:
-                        p["command"] = "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSettingsT2miAbertis/main/installer.sh -O - | /bin/sh"
+            # Faza 0 - uvek dodaj (bez provere statusa)
+            if phase == 0:
+                self.plugins_to_install.append(p)
+                continue
 
-                # Za fazu 0 ne proveravamo status
-                if phase == 0:
-                    self.plugins_to_install.append(p)
-                    continue
-
-                status = plugins_status.get(name)
-                if not status or not status.get("success", False):
-                    self.plugins_to_install.append(p)
+            status = plugins_status.get(name)
+            if not status or not status.get("success", False):
+                self.plugins_to_install.append(p)
 
         if not self.plugins_to_install:
             self.session.open(MessageBox, _("All selected plugins are already installed!"), MessageBox.TYPE_INFO)
@@ -669,27 +706,15 @@ class CiefpEasySetup(Screen):
         self.temp_selection = {}
         self.current_plugin_index = 0
 
-        self.hide()
+        # 🔥 Uvek prikaži mini screen pre bilo čega
+        self.ensure_mini_screen(start_timer=False)
 
         # Definiši callback koji se poziva posle faze 0
         def after_phase0():
-            if self.only_phase0:
-                # Samo faza 0 - završi
-                if self.mini_screen:
-                    self.mini_screen.stop_timer()
-                    self.mini_screen.close()
-                    self.mini_screen = None
-                self.show()
-                self.session.open(MessageBox, _("Phase 0 finished."), MessageBox.TYPE_INFO, timeout=5)
-                return
-
             # Pokreni fazu 1-5
             self.plugins_to_install = sorted(others, key=lambda x: x.get("phase", 0))
             if not self.plugins_to_install:
-                if self.mini_screen:
-                    self.mini_screen.stop_timer()
-                    self.mini_screen.close()
-                    self.mini_screen = None
+                self.close_mini_screen()
                 self.show()
                 self.session.open(MessageBox, _("All selected plugins are already installed!"), MessageBox.TYPE_INFO)
                 return
@@ -698,15 +723,23 @@ class CiefpEasySetup(Screen):
                 self.mini_screen.start_timer()
             self.start_actual_installation()
 
-        # Pokreni fazu 0 ako postoji
+        # Ako postoji faza 0 → pokreni je, pa onda ostale
         if phase0:
             self.run_phase_zero(after_phase0)
         else:
-            # Nema faze 0 - odmah pokreni fazu 1-5
+            # Nema faze 0 - odmah pokreni fazu 1-5 sa timerom
             self.plugins_to_install = sorted(others, key=lambda x: x.get("phase", 0))
             if self.mini_screen:
                 self.mini_screen.start_timer()
             self.start_actual_installation()
+
+    def after_phase_zero_only(self):
+        """Callback kada se završi samo Faza 0."""
+        self.close_mini_screen()
+        self.show()
+        self.build_list()
+        self.update_status_text()
+        self.session.open(MessageBox, _("Phase 0 finished."), MessageBox.TYPE_INFO, timeout=5)
 
     def start_actual_installation(self):
         self.plugin_timer = eTimer()
@@ -730,6 +763,7 @@ class CiefpEasySetup(Screen):
         name = plugin.get("name")
         phase = plugin.get("phase")
 
+        # Fallback za duplikate (faza 3 → faza 4)
         if not success and phase == 3 and name in getattr(self, "duplicate_plugins", set()):
             fallback = next((p for p in PLUGINS_DB if p.get("name") == name and p.get("phase") == 4), None)
             if fallback:
@@ -742,17 +776,16 @@ class CiefpEasySetup(Screen):
         else:
             self.failed_plugins.append(name)
 
-        self.status_data.setdefault("plugins", {})[name] = {"success": success, "phase": phase}
-        save_status(self.status_data)
+        # Faza 0 se ne čuva u JSON
+        if phase != 0:
+            self.status_data.setdefault("plugins", {})[name] = {"success": success, "phase": phase}
+            save_status(self.status_data)
 
         self.current_plugin_index += 1
         self.plugin_timer.start(500, True)
 
     def finish_installation(self):
-        if self.mini_screen:
-            self.mini_screen.stop_timer()
-            self.mini_screen.close()
-            self.mini_screen = None
+        self.close_mini_screen()
         self.show()
         self.summary_timer = eTimer()
         self.summary_timer.callback.append(self.show_install_summary)
@@ -801,10 +834,8 @@ class CiefpEasySetup(Screen):
             self.current_plugin_index = 0
             self.success_plugins = []
             self.failed_plugins = []
-            self.hide()
-            if not self.mini_screen:
-                self.mini_screen = self.session.open(CiefpInstallProgress)
-            self.mini_screen.start_timer()
+            # 🔥 Prikaži mini screen
+            self.ensure_mini_screen(start_timer=True)
             self.start_actual_installation()
         else:
             self.build_list()
@@ -820,7 +851,6 @@ class CiefpEasySetup(Screen):
         for p in PLUGINS_DB:
             p_name = p.get("name")
             phase = p.get("phase")
-            # Faza 0 se ne proverava
             if phase == 0:
                 continue
             if p_name in installed_list:
@@ -832,7 +862,6 @@ class CiefpEasySetup(Screen):
 
         self.status_data["plugins"] = new_plugins_status
 
-        # Faze 1-6 (bez faze 0)
         for phase in [1, 2, 3, 4, 5, 6]:
             phase_plugins = [p for p in PLUGINS_DB if p.get("phase") == phase]
             is_done = True
@@ -910,22 +939,24 @@ class CiefpEasySetup(Screen):
             plugin = self["list"].list[idx][1]
             if plugin.get("separator", False):
                 return
-            if not self.mini_screen:
-                self.hide()
-                self.mini_screen = self.session.open(CiefpInstallProgress)
-                self.mini_screen.start_timer()
-            self.mini_screen.update_info("Ručna instalacija...", plugin.get("name"))
+
+            # 🔥 Prikaži mini screen
+            self.ensure_mini_screen(start_timer=True)
+            self.mini_screen.update_info(_("Manual installation..."), plugin.get("name"))
+
             success = run_command(plugin.get("command"), skip_reboot=False)
-            self.status_data.setdefault("plugins", {})[plugin.get("name")] = {
-                "success": success, "phase": plugin.get("phase")
-            }
-            save_status(self.status_data)
-            if self.mini_screen:
-                self.mini_screen.stop_timer()
-                self.mini_screen.close()
-                self.mini_screen = None
+
+            phase = plugin.get("phase")
+            if phase != 0:
+                self.status_data.setdefault("plugins", {})[plugin.get("name")] = {
+                    "success": success, "phase": phase
+                }
+                save_status(self.status_data)
+
+            self.close_mini_screen()
             self.show()
             self.build_list()
+            self.update_status_text()
 
     def exit(self):
         self.close()
