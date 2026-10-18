@@ -59,6 +59,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpPiconManager", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpPiconManager/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpPiconManager"},
     {"phase": 2, "name": "CiefpSignalInfo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSignalInfo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpSignalInfo"},
     {"phase": 2, "name": "CiefpEPGinfo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEPGinfo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpEPGinfo"},
+    {"phase": 2, "name": "CiefpChannelHistory", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpChannelHistory/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpChannelHistory"},
     {"phase": 2, "name": "TitloviBrowser", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/TitloviBrowser/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Titlovi Browser"},
     {"phase": 2, "name": "WebCamE2PrenjSF", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/WebCamE2PrenjSF/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "WebCam E2 PrenjSF"},
 
