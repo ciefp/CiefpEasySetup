@@ -13,7 +13,7 @@ import os
 import sys
 
 CURRENT_LANG = "sr"
-PLUGIN_VERSION = "3.1"
+PLUGIN_VERSION = "3.2"
 PLUGIN_NAME = "CiefpEasySetup"
 
 # Nazivi faza za separatore
