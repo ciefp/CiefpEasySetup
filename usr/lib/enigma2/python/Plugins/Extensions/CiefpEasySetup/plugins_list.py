@@ -61,6 +61,7 @@ PLUGINS_DB = [
     {"phase": 2, "name": "CiefpEPGinfo", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpEPGinfo/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpEPGinfo"},
     {"phase": 2, "name": "CiefpChannelHistory", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpChannelHistory/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpChannelHistory"},
     {"phase": 2, "name": "CiefpXfiles", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpXfiles/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpXfiles"},
+    {"phase": 2, "name": "CiefpSfiles", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/CiefpSfiles/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "CiefpSfiles"},
     {"phase": 2, "name": "TitloviBrowser", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/TitloviBrowser/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "Titlovi Browser"},
     {"phase": 2, "name": "WebCamE2PrenjSF", "command": "wget -q --no-check-certificate https://raw.githubusercontent.com/ciefp/WebCamE2PrenjSF/main/installer.sh -O - | /bin/sh", "type": "ciefp", "skip_reboot": True, "desc": "WebCam E2 PrenjSF"},
 
@@ -71,7 +72,6 @@ PLUGINS_DB = [
     {"phase": 3, "name": "HDFRadio", "command": "opkg install enigma2-plugin-extensions-hdfradio", "type": "opkg", "desc": "HDF Radio"},
     {"phase": 3, "name": "OAWeather", "command": "opkg install enigma2-plugin-extensions-oaweather", "type": "opkg", "desc": "Vremenska prognoza"},
     {"phase": 3, "name": "StreamlinkWrapper", "command": "opkg install enigma2-plugin-extensions-streamlinkwrapper", "type": "opkg", "desc": "Streamlink podrška"},
-    {"phase": 3, "name": "vavoo", "command": "opkg install enigma2-plugin-extensions-vavoo", "type": "opkg", "desc": "Vavoo TV"},
     {"phase": 3, "name": "XStreamity", "command": "opkg install enigma2-plugin-extensions-xstreamity", "type": "opkg", "desc": "XStreamity IPTV"},
     {"phase": 3, "name": "YouTube", "command": "opkg install enigma2-plugin-extensions-youtube", "type": "opkg", "desc": "YouTube TV"},
     {"phase": 3, "name": "ytdlpwrapper", "command": "opkg install enigma2-plugin-extensions-ytdlpwrapper", "type": "opkg", "desc": "yt-dlp podrška"},
@@ -81,7 +81,6 @@ PLUGINS_DB = [
     # ==================== FAZA 4 - Modifikovane skripte (Third Party Scripts) ====================
     {"phase": 4, "name": "LinuxsatPanel", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/LinuxsatPanel_installer.sh", "type": "thirdparty", "desc": "LinuxsatPanel (Local)"},
     {"phase": 4, "name": "NewVirtualKeyBoard", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/NewVirtualKeyBoard_installer.sh", "type": "thirdparty", "desc": "Virtual Keyboard (Local)"},
-    {"phase": 4, "name": "XStreamity", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XStreamity_installer.sh", "type": "thirdparty", "desc": "X-Streamity (Local)"},
     {"phase": 4, "name": "XKlass", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XKlass_installer.sh", "type": "thirdparty", "desc": "XKlass (Local)"},
     {"phase": 4, "name": "RaedQuickSignal", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/RaedQuickSignal_installer.sh", "type": "thirdparty", "desc": "Raed Quick Signal (Local)"},
     {"phase": 4, "name": "SubsSupport", "command": "SKIP_REBOOT=1 sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/subssupport-install.sh", "type": "thirdparty", "desc": "SubsSupport (local)"},
@@ -93,6 +92,9 @@ PLUGINS_DB = [
     # ==================== FAZA 6 - Rezervna instalacija ako ne prođe instalacija sa feeda (reserve) ====================
     {"phase": 6, "name": "AjPan", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/AjPanel_installer.sh", "type": "reserve", "desc": "AjPanel (reserve)"},
     {"phase": 6, "name": "EStalker", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/Estalker_installer.sh", "type": "reserve", "desc": "EStalker (reserve)"},
+    {"phase": 6, "name": "XStreamity", "command": "sh /usr/lib/enigma2/python/Plugins/Extensions/CiefpEasySetup/scripts/XStreamity_installer.sh", "type": "reserve", "desc": "X-Streamity (reserve)"},
+    {"phase": 6, "name": "vavoo", "command": "opkg install enigma2-plugin-extensions-vavoo", "type": "reserve", "desc": "Vavoo TV (reserve)"},
+    
     # ==================== FAZA 100 - EKSPERIMENTALNI PLUGINI (Ručna instalacija) ====================
     # Ovi plugini se NE instaliraju sa "Install ALL" - samo ručno preko [X] selekcije
     # Neki od njih možda imaju svoj restart i ne poštuju SKIP_REBOOT
